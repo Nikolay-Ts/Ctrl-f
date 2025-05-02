@@ -6,7 +6,10 @@ body {
 .drop-zone {
     border: 2px dashed #888;
     border-radius: 10px;
-    padding: 40px;
+    width: 800px;
+    height: 500px;
+    margin: 0 auto;
+    padding: 20px;
     text-align: center;
     color: #bbb;
     background-color: #1e1e1e;
