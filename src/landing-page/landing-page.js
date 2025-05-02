@@ -1,9 +1,15 @@
-// Handle drag & drop
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
+const promptInput = document.getElementById('promptInput');
 
-dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+dropZone.addEventListener('dragover', () => {
     dropZone.classList.add('dragover');
 });
 
@@ -11,14 +17,13 @@ dropZone.addEventListener('dragleave', () => {
     dropZone.classList.remove('dragover');
 });
 
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
+dropZone.addEventListener('drop', e => {
     dropZone.classList.remove('dragover');
     const files = Array.from(e.dataTransfer.files);
     handleFiles(files);
 });
 
-fileInput.addEventListener('change', (e) => {
+fileInput.addEventListener('change', e => {
     handleFiles(Array.from(e.target.files));
 });
 
@@ -31,8 +36,6 @@ function handleFiles(files) {
     }
 }
 
-// Auto-resize textarea
-const promptInput = document.getElementById('promptInput');
 promptInput.addEventListener('input', () => {
     promptInput.style.height = 'auto';
     promptInput.style.height = `${promptInput.scrollHeight}px`;

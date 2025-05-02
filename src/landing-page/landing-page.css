@@ -3,14 +3,26 @@ body {
     color: #ffffff;
 }
 
+.vertical-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+}
+
 .drop-zone {
+    padding: 4rem;
     border: 2px dashed #888;
-    border-radius: 10px;
-    padding: 40px;
-    text-align: center;
-    color: #bbb;
-    background-color: #1e1e1e;
+    border-radius: 0.5rem;
+    background-color: #2b2b2b;
     transition: border-color 0.3s, color 0.3s;
+    cursor: pointer;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .drop-zone.dragover {
@@ -21,14 +33,8 @@ body {
 .grow-textarea {
     resize: none;
     overflow-y: hidden;
+    background-color: #1c1c1c;
+    color: #fff;
+    border: 1px solid #444;
     min-height: 100px;
-    background-color: #2c2c2c;
-    color: white;
-    border: 1px solid #444;
-}
-
-input[type="file"] {
-    background-color: #2c2c2c;
-    color: white;
-    border: 1px solid #444;
 }

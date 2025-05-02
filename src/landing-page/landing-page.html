@@ -9,23 +9,46 @@
   <link href="landing-page.css" rel="stylesheet">
 </head>
 
-<body>
-  <div class="container py-5">
-    <h2 class="mb-4 text-center">PDF Uploader</h2>
-
-    <div id="dropZone" class="drop-zone mb-3">
-      Drop PDF files here or click the button below to upload.
+<body class="bg-dark text-white">
+  <nav class="navbar navbar-expand-lg" style="background-color: #343a40;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="landing-page.html">
+        <img src="../assets/logo.png" alt="Ctrl-f Logo" height="50">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link text-light" href="/about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="https://github.com/Nikolay-Ts/Ctrl-f" target="_blank"
+              rel="noopener noreferrer">Source Code</a>
+          </li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <div class="d-flex justify-content-center mb-4">
-      <input type="file" id="fileInput" class="form-control w-auto" accept="application/pdf" multiple>
-    </div>
+  <main class="container py-5">
+    <h2 class="mb-5 text-center">Upload and Prompt</h2>
 
-    <div class="mb-3">
-      <label for="promptInput" class="form-label">Prompt</label>
-      <textarea id="promptInput" class="form-control grow-textarea" placeholder="Write your prompt here..."></textarea>
+    <div class="mx-auto vertical-stack">
+      <div id="dropZone" class="drop-zone text-center mb-4 py-5">
+        Drop PDF files here or click the button below to upload.
+      </div>
+
+      <input type="file" id="fileInput" class="form-control mb-4" accept="application/pdf" multiple>
+
+      <div class="mb-3">
+        <label for="promptInput" class="form-label">Enter your prompt:</label>
+        <textarea id="promptInput" class="form-control grow-textarea" rows="3" placeholder="Type your prompt here..."></textarea>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script src="landing-page.js"></script>
 </body>
