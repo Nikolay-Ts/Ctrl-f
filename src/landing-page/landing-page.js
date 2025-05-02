@@ -111,6 +111,17 @@ cancelBtn.addEventListener('click', () => {
     updateFilePreview();
 });
 
+function SubmitPdf() {
+
+    if (uploadedFiles.length > 0) {
+        fileUploadError.classList.add('d-none');
+        // TODO: make logic to send the files to the backend 
+    } else {
+        fileUploadError.textContent = "⚠️ Please upload at least one PDF.";
+        fileUploadError.classList.remove('d-none');
+    }
+}
+
 // Trigger fade-in on page load
 window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loaded');
