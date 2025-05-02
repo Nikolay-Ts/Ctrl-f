@@ -1,0 +1,45 @@
+.animated-fadein {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.founder-img {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.founder-link {
+    display: inline-block;
+    width: 160px;
+    text-align: center;
+    background-color: #cdcdcd;
+    color: black;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    margin-top: 1.2rem;
+    /* Increased from 0.5rem */
+}
+
+.founder-link:hover {
+    background-color: #ffffff;
+    text-decoration: none;
+    color: black;
+}
