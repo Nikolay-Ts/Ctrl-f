@@ -1,0 +1,34 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.drop-zone {
+    border: 2px dashed #888;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    color: #bbb;
+    background-color: #1e1e1e;
+    transition: border-color 0.3s, color 0.3s;
+}
+
+.drop-zone.dragover {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.grow-textarea {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 100px;
+    background-color: #2c2c2c;
+    color: white;
+    border: 1px solid #444;
+}
+
+input[type="file"] {
+    background-color: #2c2c2c;
+    color: white;
+    border: 1px solid #444;
+}
