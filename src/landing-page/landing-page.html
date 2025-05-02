@@ -45,6 +45,10 @@
         <div id="filePreviewContainer" class="file-preview-container d-flex flex-wrap justify-content-start gap-3 mt-3"></div>
       </div>
 
+      <p id="fileUploadError" class="text-danger small mt-2 d-none">
+        ⚠️ You can only upload up to 10 PDF files.
+      </p>
+
       <div class="mb-4 text-center">
         <label for="fileInput" class="btn btn-dark custom-upload-label">
           Choose PDF Files
@@ -57,7 +61,9 @@
         <textarea id="promptInput" class="form-control grow-textarea" placeholder="E.g. Summarize section 3..."></textarea>
       </div>
 
-      <div class="text-end">
+      <div id="actionButtons" class="text-end d-flex justify-content-end gap-3 align-items-center flex-wrap">
+        <p id="fileLimitWarning" class="text-danger mb-0 me-auto d-none">⚠️ You can upload a maximum of 10 files.</p>
+        <button id="cancelBtn" class="btn btn-dark px-4 py-2 shadow d-none">Cancel</button>
         <button class="btn btn-dark px-4 py-2 shadow">Submit</button>
       </div>
     </div>

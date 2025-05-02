@@ -174,3 +174,81 @@ input[type="file"]:hover {
     width: 24px;
     height: auto;
 }
+
+.file-preview {
+    position: relative;
+    padding-right: 30px;
+}
+
+.file-preview .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 50%;
+    padding: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 0.9;
+    cursor: pointer;
+    filter: none;
+}
+
+.file-preview .btn-close:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+    opacity: 1;
+}
+
+/* Force Bootstrap SVG to be black */
+.file-preview .btn-close {
+    filter: brightness(0);
+}
+
+#fileLimitWarning {
+    font-size: 0.9rem;
+  }
+
+
+  /* Smooth fade-in for body content */
+body {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+body.loaded {
+    opacity: 1;
+}
+
+/* Smooth transition for file preview */
+.file-preview {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.file-preview.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Drop zone hover feedback */
+.drop-zone {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Smooth show/hide for warnings */
+#fileUploadError,
+#fileLimitWarning {
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+#fileUploadError:not(.d-none),
+#fileLimitWarning:not(.d-none) {
+    opacity: 1;
+}
+
+/* Button hover (already styled, but let's smooth it more) */
+.btn {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
