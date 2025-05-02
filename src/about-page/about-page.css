@@ -1,3 +1,42 @@
+body {
+    background-image: url('/src/assets/Background.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-color: #f8f8f8;
+    font-family: 'Segoe UI', sans-serif;
+    color: #111;
+    /* Darker, clean text */
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+    color: #111 !important;
+}
+
+.nav-blur {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 1030;
+}
+
+.nav-lg-link {
+    font-size: 1.15rem;
+    font-weight: 500;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.about-box {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    color: #111;
+}
+
 .animated-fadein {
     animation: fadeInUp 0.8s ease-out;
 }
@@ -28,8 +67,12 @@
     display: inline-block;
     width: 160px;
     text-align: center;
-    background-color: #cdcdcd;
-    color: black;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    color: #111;
     padding: 0.4rem 1rem;
     border-radius: 999px;
     font-weight: 500;
