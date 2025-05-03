@@ -228,8 +228,8 @@ async function submitVideo() {
     const prompt = promptInput.value.trim();
 
     const formData = new FormData();
-    formData.append("url", url);
     formData.append("prompt", prompt);
+    formData.append("video", url);
 
     try {
         const response = await fetch("http://34.141.67.42:3000/submit-video", {
