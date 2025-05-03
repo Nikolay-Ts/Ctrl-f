@@ -279,3 +279,8 @@ body.loaded {
     border-top-right-radius: 10px !important;
     border-bottom-right-radius: 10px !important;
 }
+
+#videoPromptInput {
+    background-color: white !important;
+    color: #111 !important;
+}
