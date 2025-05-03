@@ -1,5 +1,6 @@
 import json
 import os
+from functions import search_documents
 import pdfplumber
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Highlight
@@ -10,13 +11,25 @@ os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 
 # Input the term to search.
 value = input("Enter term to find: ")
-
-# Path to the PDF file
-pdf_path = r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf"
-
+pdf_path = input("File to search in: ")  
+with open(value, 'rb') as pdf_file:
+    pdf_data = pdf_file.read()
+    
 # Load the response schema
 with open("response_schema.json", "r", encoding="utf-8") as f:
     response_schema = json.load(f)
+
+tool = types.Tool(
+    function_declarations=[search_documents]
+        )
+
+generation_config = types.GenerateContentConfig(
+    # response_mime_type="application/json",
+    # response_schema=response_schema,
+    temperature=0,
+    tools=[tool],
+)
+# Path to the PDF file
 
 text_bboxes = {}
 coordinates_data = [] # To store the coordinates
