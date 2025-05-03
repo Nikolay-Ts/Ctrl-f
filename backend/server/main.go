@@ -32,7 +32,7 @@ func main() {
 		r.ParseMultipartForm(20 << 20) // 20 MB limit
 
 		var user_request UserRequest
-		user_request.From(r.MultipartForm)
+		user_request.From(r)
 
 		var dir UniqueDir
 		err := dir.New()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path"
 	"time"
@@ -16,20 +17,16 @@ type UserRequest struct {
 }
 
 // UserRequest.From populates the struct with the form data.
-func (u *UserRequest) From(f *multipart.Form) {
-	u.Prompt = f.Value["prompt"][0]
+func (u *UserRequest) From(r *http.Request) {
+	u.Prompt = r.FormValue("prompt")
 	
-	if (len(f.File) <= 0) {
+	if (len(r.MultipartForm.File) <= 0) {
 		u.Files = nil
 	} else {
-		u.Files = f.File["pdfs"]
+		u.Files = r.MultipartForm.File["pdfs"]
 	}
 
-	if (len(f.Value["video"]) <= 0) {
-		u.Video = ""
-	} else {
-		u.Video = f.Value["video"][0]
-	}
+	u.Video = r.FormValue("video")
 }
 
 type UniqueDir struct {
