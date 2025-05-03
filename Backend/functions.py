@@ -1,13 +1,13 @@
 import json
 from google.genai.types import FunctionDeclaration, GenerateContentConfig, Part, Tool
 
-with open("schema.json", "r") as f:
-    schema = json.load(f)
+with open("response_schema.json", "r") as f:
+    response_schema = json.load(f)
 
 search_documents = FunctionDeclaration(
         name="search_documents",
         description="""
             Search all documents for the query. Find all relevant information and extract it.
         """,
-        parameters=json.load(schema)
+        parameters=json.load(response_schema)
         )

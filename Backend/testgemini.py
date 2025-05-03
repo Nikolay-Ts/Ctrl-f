@@ -34,7 +34,8 @@ generation_config = {
     "response_mime_type": "application/json"
 }
 
-with open(r'C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf', 'rb') as pdf_file:
+value = input("File to search in: ")  
+with open(value, 'rb') as pdf_file:
     pdf_data = pdf_file.read()
 
 # Suppose you get `value` from user or code:
