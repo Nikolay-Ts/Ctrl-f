@@ -1,27 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ctrl-F PDF Viewer</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="pdf-view.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <style>
-    #pdf-render {
-      border: 1px solid #ccc;
-      max-width: 100%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      margin-bottom: 20px;
-    }
-    .viewer-controls {
-      margin-bottom: 20px;
-    }
-  </style>
-</head>
 
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="pdf-view.css" />
+</head>
 <body>
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
       <div class="d-flex" style="width: 33%;"></div>
@@ -43,139 +37,125 @@
     </div>
   </nav>
 
+  <!-- Main Container -->
   <div class="container d-flex flex-column justify-content-center align-items-center py-5 min-vh-100">
     <div class="ultra-card p-5 shadow-lg w-100" style="max-width: 850px;">
       <h2 class="text-center mb-4">PDF Viewer</h2>
 
-      <div class="viewer-controls d-flex align-items-center justify-content-center gap-3 mb-4">
-        <label for="pageNumber" class="form-label mb-0">Go to page:</label>
-        <input type="number" id="pageNumber" class="form-control w-auto" min="1" value="1">
-        <button id="loadPageBtn" class="btn btn-dark">Load Page</button>
-    </div>
-      <div class="viewer-controls d-flex align-items-center justify-content-center gap-3 mb-4">
-        <label for="searchTerm" class="form-label mb-0">Find text:</label>
-        <input type="text" id="searchTerm" class="form-control w-auto" placeholder="e.g. algorithm">
-        <button id="searchBtn" class="btn btn-dark">Highlight</button>
-    </div>
+      <div class="text-center mb-4">
+        <button id="highlightBtn" class="btn btn-danger">Highlight Box</button>
+      </div>
 
-      <canvas id="pdf-render"></canvas>
+      <div class="pdf-container">
+        <canvas id="pdf-render"></canvas>
+        <div id="highlight-layer"></div>
+      </div>
     </div>
   </div>
 
+  <!-- JavaScript -->
   <script>
-  const url = '/src/test-data/RIS-lab.pdf';
-  const canvas = document.getElementById('pdf-render');
-  const ctx = canvas.getContext('2d');
-  const pageNumberInput = document.getElementById('pageNumber');
-  const loadPageBtn = document.getElementById('loadPageBtn');
-  let pdfDoc = null;
-  let currentPage = 1;
+    const url = '/src/test-data/RIS-lab.pdf';
+    const canvas = document.getElementById('pdf-render');
+    const ctx = canvas.getContext('2d');
+    const highlightLayer = document.getElementById('highlight-layer');
+    let pdfDoc = null;
+    let currentPage = 1;
 
-  pdfjsLib.getDocument(url).promise.then(pdf => {
-    pdfDoc = pdf;
-    renderPage(currentPage);
-  });
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      pdfDoc = pdf;
+      renderPage(currentPage);
+    });
 
-  function renderPage(num) {
-    currentPage = num;
-    if (!pdfDoc) {
-      console.log("No file");
-      return;
+    function clearHighlights() {
+      highlightLayer.innerHTML = '';
     }
 
-    pdfDoc.getPage(num).then(page => {
-      const viewport = page.getViewport({ scale: 1.5 });
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+    function renderPage(pageNum, callback) {
+      currentPage = pageNum;
+      pdfDoc.getPage(pageNum).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
 
-      const renderContext = {
-        canvasContext: ctx,
-        viewport: viewport
-      };
+        // Set internal resolution
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
-      page.render(renderContext).promise.then(() => {
-        highlightSearchTerm(page, viewport);
+        // Display size (CSS scaling)
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+
+        // Match overlay size to CSS canvas size
+        highlightLayer.style.width = '100%';
+        highlightLayer.style.height = '100%';
+
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+
+        page.render(renderContext).promise.then(() => {
+          if (typeof callback === 'function') {
+            callback(viewport);
+          }
+        });
       });
-    });
-  }
-
-  function highlightSearchTerm(page, viewport) {
-    const term = document.getElementById('searchTerm').value.trim().toLowerCase();
-    if (!term) return;
-
-    page.getTextContent().then(textContent => {
-      const overlay = document.getElementById('highlight-layer') || document.createElement('div');
-      overlay.id = 'highlight-layer';
-      overlay.innerHTML = '';
-      overlay.style.position = 'absolute';
-      overlay.style.pointerEvents = 'none';
-      overlay.style.zIndex = '100';
-
-      const canvasRect = canvas.getBoundingClientRect();
-      const containerRect = document.querySelector('.ultra-card').getBoundingClientRect();
-
-      overlay.style.top = (canvasRect.top - containerRect.top) + 'px';
-      overlay.style.left = (canvasRect.left - containerRect.left) + 'px';
-      overlay.style.width = canvas.width + 'px';
-      overlay.style.height = canvas.height + 'px';
-
-      textContent.items.forEach(item => {
-        
-        const text = item.str.toLowerCase();
-
-        if (text.includes(term)) {
-            const words = item.str.split(' ');
-            let currentX = item.transform[4];
-
-            for (const word of words) {
-                if (word.toLowerCase().includes(term)) {
-                    const wordIndex = item.str.indexOf(word);
-                    const charWidth = item.width / item.str.length;
-                    const startX = item.transform[4] + wordIndex * charWidth;
-                    const endX = startX + word.length * charWidth;
-
-                    const bounds = viewport.convertToViewportRectangle([
-                        startX,
-                        item.transform[5],
-                        endX,
-                        item.transform[5] + item.height
-                    ]);
-
-                    const [x1, y1, x2, y2] = bounds;
-                    const highlight = document.createElement('div');
-                    highlight.className = 'highlight';
-                    highlight.style.transform = `translate(${Math.min(x1, x2)}px, ${Math.min(y1, y2)}px)`;
-                    highlight.style.width = `${Math.abs(x2 - x1)}px`;
-                    highlight.style.height = `${Math.abs(y2 - y1)}px`;
-                    highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
-                    overlay.appendChild(highlight);
-                }
-            }
-        }
-      });
-
-      document.querySelector('.ultra-card').appendChild(overlay);
-    });
-  }
-
-  loadPageBtn.addEventListener('click', () => {
-    const pageNum = parseInt(pageNumberInput.value);
-    if (pdfDoc && pageNum >= 1 && pageNum <= pdfDoc.numPages) {
-      renderPage(pageNum);
-    } else {
-      alert('Invalid page number.');
     }
-  });
 
-  document.getElementById('searchBtn').addEventListener('click', () => {
-    renderPage(currentPage);
-  });
+    // 🔧 Main function to call from backend
+    function highlightBoxByCoords(pageNum, x1, x2, y1, y2) {
+      renderPage(pageNum, (viewport) => {
+        clearHighlights();
 
-  window.addEventListener('DOMContentLoaded', () => {
-    document.body.classList.add('loaded');
-  });
+        const [vx1, vy1, vx2, vy2] = viewport.convertToViewportRectangle([x1, y1, x2, y2]);
+
+        // Calculate visual scale (CSS pixels / real pixels)
+        const scaleX = canvas.clientWidth / canvas.width;
+        const scaleY = canvas.clientHeight / canvas.height;
+
+        const highlight = document.createElement('div');
+        highlight.className = 'highlight';
+        highlight.style.left = `${Math.min(vx1, vx2) * scaleX}px`;
+        highlight.style.top = `${Math.min(vy1, vy2) * scaleY}px`;
+        highlight.style.width = `${Math.abs(vx2 - vx1) * scaleX}px`;
+        highlight.style.height = `${Math.abs(vy2 - vy1) * scaleY}px`;
+
+        highlightLayer.appendChild(highlight);
+      });
+    }
+
+    // Test button simulating backend highlight
+    document.getElementById('highlightBtn').addEventListener('click', () => {
+      // This will highlight the top-right corner of page 1
+      pdfDoc.getPage(1).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const pdfWidth = viewport.viewBox[2];
+        const pdfHeight = viewport.viewBox[3];
+
+        const x2 = pdfWidth;
+        const x1 = x2 - 100;
+        const y2 = pdfHeight;
+        const y1 = y2 - 50;
+
+        highlightBoxByCoords(1, x1, x2, y1, y2);
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      pdfDoc.getPage(1).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const pdfWidth = viewport.viewBox[2];
+        const pdfHeight = viewport.viewBox[3];
+
+        const x2 = pdfWidth;
+        const x1 = x2 - 100;
+        const y2 = pdfHeight;
+        const y1 = y2 - 50;
+
+        highlightBoxByCoords(1, x1, x2, y1, y2);
+      });
+    });
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
