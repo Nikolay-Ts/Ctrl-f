@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+      "matches": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" },
+            "page": { "type": "integer" }
+          },
+          "required": ["text", "page"]
+        }
+      }
+    },
+    "required": ["matches"]
+  }
+  

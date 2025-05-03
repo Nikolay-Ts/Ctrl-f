@@ -1,20 +1,49 @@
-from llama_index.core.agent.workflow import FunctionAgent
-from llama_index.llms.ollama         import Ollama
-import asyncio
+from google import genai
+from google.genai import types
+import httpx
+import os
 
-# Your multiplication tool
-def multiply(a: float, b: float) -> float:
-    return a * b
+os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 
-agent = FunctionAgent(
-    tools=[multiply],
-    llm=Ollama(model="llava:latest", request_timeout=360.0),
-    system_prompt="You are a helpful assistant that can multiply two numbers.",
+client = genai.Client(api_key=os.environ["API_KEY"])
+
+# 2. Read PDF
+with open(r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf", "rb") as f:
+    pdf_data = f.read()  #:contentReference[oaicite:7]{index=7}
+
+response_schema = {
+  "type": "object",
+  "properties": {
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {"type": "string"},
+          "page": {"type": "integer"}
+        },
+        "required": ["text", "page"]
+      }
+    }
+  },
+  "required": ["matches"]
+}  #:contentReference[oaicite:9]{index=9}
+
+generation_config = types.GenerateContentConfig(
+    response_mime_type="application/json",
+    response_schema=response_schema
+)  # :contentReference[oaicite:4]{index=4}
+
+value = input("Enter term to find: ")
+prompt = f'Identify all instances of "{value}" and provide their page numbers.'
+
+response = client.models.generate_content(
+    model="gemini-2.0-flash",
+    contents=[
+        types.Part.from_bytes(data=pdf_data, mime_type="application/pdf"),
+        prompt
+    ],
+    config=generation_config
 )
 
-async def main():
-    response = await agent.run("What is 1234 * 4567?")
-    print(response)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+print(response.text)  # JSON matching your schema

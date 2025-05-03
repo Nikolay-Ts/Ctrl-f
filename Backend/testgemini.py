@@ -11,6 +11,28 @@ client = genai.Client(api_key=os.environ["API_KEY"])
 #)
 #print(response.text)
 
+response_schema = {
+    "type": "object",
+    "properties": {
+        "matches": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string"},
+                    "page": {"type": "integer"}
+                },
+                "required": ["text", "page"]
+            }
+        }
+    },
+    "required": ["matches"]
+}
+
+
+generation_config = {
+    "response_mime_type": "application/json"
+}
 
 with open(r'C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf', 'rb') as pdf_file:
     pdf_data = pdf_file.read()
@@ -29,7 +51,10 @@ response = client.models.generate_content(
             mime_type='application/pdf',
         ),
         prompt
-    ]
+    ],
+    generation_config=generation_config,
+    response_schema=response_schema
 )
+
 
 print(response.text)
