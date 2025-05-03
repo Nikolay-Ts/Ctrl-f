@@ -1,10 +1,13 @@
 import json
 import os
+<<<<<<< HEAD
 from functions import search_documents
+=======
 import pdfplumber
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Highlight
 from pypdf.generic import ArrayObject, FloatObject
+>>>>>>> 73a646f (Fixed the coordinates (to an extent))
 
 # Set your API key
 os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
@@ -12,6 +15,7 @@ os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 # Input the term to search.
 value = input("Enter term to find: ")
 
+<<<<<<< HEAD
 # 2. Read PDF
 value = input("File to search in: ")  
 with open(value, 'rb') as pdf_file:
@@ -31,6 +35,7 @@ generation_config = types.GenerateContentConfig(
     temperature=0,
     tools=[tool],
 )
+=======
 # Path to the PDF file
 pdf_path = r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf"
 
@@ -60,11 +65,25 @@ with pdfplumber.open(pdf_path) as pdf:
                     "bottom": float(w["bottom"]),
                 }
                 coordinates_data.append(coord_dict)
+>>>>>>> 73a646f (Fixed the coordinates (to an extent))
 
 # Create PDF reader and writer
 reader = PdfReader(pdf_path)
 writer = PdfWriter()
 
+<<<<<<< HEAD
+
+response = client.models.generate_content(
+    model="gemini-2.0-flash",
+    contents=[
+        types.Part.from_bytes(data=pdf_data, mime_type="application/pdf"),
+        prompt
+    ],
+    config=generation_config
+)
+
+print(response.function_calls[0])  # JSON matching your schema
+=======
 # Iterate through pages and add both the page and annotations
 for page_num in range(len(reader.pages)): # Iterate using page numbers
     page = reader.pages[page_num]  # Get the page object.
@@ -97,3 +116,4 @@ with open("coordinates.json", "w") as outfile:
     json.dump(coordinates_data, outfile, indent=4) # Added indent for better readability
 
 print("Done")
+>>>>>>> 73a646f (Fixed the coordinates (to an extent))
