@@ -51,56 +51,130 @@
         <label for="pageNumber" class="form-label mb-0">Go to page:</label>
         <input type="number" id="pageNumber" class="form-control w-auto" min="1" value="1">
         <button id="loadPageBtn" class="btn btn-dark">Load Page</button>
-      </div>
+    </div>
+      <div class="viewer-controls d-flex align-items-center justify-content-center gap-3 mb-4">
+        <label for="searchTerm" class="form-label mb-0">Find text:</label>
+        <input type="text" id="searchTerm" class="form-control w-auto" placeholder="e.g. algorithm">
+        <button id="searchBtn" class="btn btn-dark">Highlight</button>
+    </div>
 
       <canvas id="pdf-render"></canvas>
     </div>
   </div>
 
   <script>
-    const url = '/src/test-data/RIS-lab.pdf';
-    const canvas = document.getElementById('pdf-render');
-    const ctx = canvas.getContext('2d');
-    const pageNumberInput = document.getElementById('pageNumber');
-    const loadPageBtn = document.getElementById('loadPageBtn');
-    let pdfDoc = null;
+  const url = '/src/test-data/RIS-lab.pdf';
+  const canvas = document.getElementById('pdf-render');
+  const ctx = canvas.getContext('2d');
+  const pageNumberInput = document.getElementById('pageNumber');
+  const loadPageBtn = document.getElementById('loadPageBtn');
+  let pdfDoc = null;
+  let currentPage = 1;
 
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-      pdfDoc = pdf;
-      renderPage(1);
-    });
+  pdfjsLib.getDocument(url).promise.then(pdf => {
+    pdfDoc = pdf;
+    renderPage(currentPage);
+  });
 
-    function renderPage(num) {
-        if (!pdfDoc){ 
-            console.log("No file");
-            return;
-        }
-
-        pdfDoc.getPage(num).then(page => {
-            const viewport = page.getViewport({ scale: 1.5 });
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            const renderContext = {
-                canvasContext: ctx,
-                viewport: viewport
-            };
-            page.render(renderContext);
-        });
+  function renderPage(num) {
+    currentPage = num;
+    if (!pdfDoc) {
+      console.log("No file");
+      return;
     }
 
-    loadPageBtn.addEventListener('click', () => {
-      const pageNum = parseInt(pageNumberInput.value);
-      if (pdfDoc && pageNum >= 1 && pageNum <= pdfDoc.numPages) {
-        renderPage(pageNum);
-      } else {
-        alert('Invalid page number.');
-      }
-    });
+    pdfDoc.getPage(num).then(page => {
+      const viewport = page.getViewport({ scale: 1.5 });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-    window.addEventListener('DOMContentLoaded', () => {
-        document.body.classList.add('loaded');
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      };
+
+      page.render(renderContext).promise.then(() => {
+        highlightSearchTerm(page, viewport);
+      });
     });
+  }
+
+  function highlightSearchTerm(page, viewport) {
+    const term = document.getElementById('searchTerm').value.trim().toLowerCase();
+    if (!term) return;
+
+    page.getTextContent().then(textContent => {
+      const overlay = document.getElementById('highlight-layer') || document.createElement('div');
+      overlay.id = 'highlight-layer';
+      overlay.innerHTML = '';
+      overlay.style.position = 'absolute';
+      overlay.style.pointerEvents = 'none';
+      overlay.style.zIndex = '100';
+
+      const canvasRect = canvas.getBoundingClientRect();
+      const containerRect = document.querySelector('.ultra-card').getBoundingClientRect();
+
+      overlay.style.top = (canvasRect.top - containerRect.top) + 'px';
+      overlay.style.left = (canvasRect.left - containerRect.left) + 'px';
+      overlay.style.width = canvas.width + 'px';
+      overlay.style.height = canvas.height + 'px';
+
+      textContent.items.forEach(item => {
+        
+        const text = item.str.toLowerCase();
+
+        if (text.includes(term)) {
+            const words = item.str.split(' ');
+            let currentX = item.transform[4];
+
+            for (const word of words) {
+                if (word.toLowerCase().includes(term)) {
+                    const wordIndex = item.str.indexOf(word);
+                    const charWidth = item.width / item.str.length;
+                    const startX = item.transform[4] + wordIndex * charWidth;
+                    const endX = startX + word.length * charWidth;
+
+                    const bounds = viewport.convertToViewportRectangle([
+                        startX,
+                        item.transform[5],
+                        endX,
+                        item.transform[5] + item.height
+                    ]);
+
+                    const [x1, y1, x2, y2] = bounds;
+                    const highlight = document.createElement('div');
+                    highlight.className = 'highlight';
+                    highlight.style.transform = `translate(${Math.min(x1, x2)}px, ${Math.min(y1, y2)}px)`;
+                    highlight.style.width = `${Math.abs(x2 - x1)}px`;
+                    highlight.style.height = `${Math.abs(y2 - y1)}px`;
+                    highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.4)';
+                    overlay.appendChild(highlight);
+                }
+            }
+        }
+      });
+
+      document.querySelector('.ultra-card').appendChild(overlay);
+    });
+  }
+
+  loadPageBtn.addEventListener('click', () => {
+    const pageNum = parseInt(pageNumberInput.value);
+    if (pdfDoc && pageNum >= 1 && pageNum <= pdfDoc.numPages) {
+      renderPage(pageNum);
+    } else {
+      alert('Invalid page number.');
+    }
+  });
+
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    renderPage(currentPage); // re-render current page with search term
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('loaded');
+  });
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
