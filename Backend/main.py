@@ -1,6 +1,7 @@
 import json
 import os
 from functions import search_documents
+from utils import getCoords
 import pdfplumber
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Highlight
@@ -19,40 +20,26 @@ with open(value, 'rb') as pdf_file:
 with open("response_schema.json", "r", encoding="utf-8") as f:
     response_schema = json.load(f)
 
-tool = types.Tool(
-    function_declarations=[search_documents]
-        )
+tool = types.Tool(function_declarations=[search_documents])
 
 generation_config = types.GenerateContentConfig(
-    # response_mime_type="application/json",
-    # response_schema=response_schema,
     temperature=0,
     tools=[tool],
 )
-# Path to the PDF file
 
-text_bboxes = {}
-coordinates_data = [] # To store the coordinates
+response = client.models.generate_content(
+    model="gemini-2.0-flash",
+    contents=[
+        types.Part.from_bytes(data=pdf_data, mime_type="application/pdf"),
+        prompt
+    ],
+    config=generation_config
+)
 
-# Extract text and bounding boxes using pdfplumber
-with pdfplumber.open(pdf_path) as pdf:
-    for i, page in enumerate(pdf.pages):
-        words = page.extract_words()
-        text_bboxes[i] = [
-            (float(w["x0"]), float(w["top"]), float(w["x1"]), float(w["bottom"]))
-            for w in words if w["text"].lower() == value.lower()
-        ]
-        # Store the coordinates
-        for w in words:
-            if w["text"].lower() == value.lower():
-                coord_dict = {
-                    "page_number": i + 1,  # Page numbers start from 1
-                    "x0": float(w["x0"]),
-                    "top": float(w["top"]),
-                    "x1": float(w["x1"]),
-                    "bottom": float(w["bottom"]),
-                }
-                coordinates_data.append(coord_dict)
+text = response.function_calls[0].args["text"],
+page_num = response.function_calls[0].args["page"],
+
+text_bboxes = getCoords(text, pdf_path, page_num)
 
 # Create PDF reader and writer
 reader = PdfReader(pdf_path)
@@ -62,7 +49,7 @@ writer = PdfWriter()
 for page_num in range(len(reader.pages)): # Iterate using page numbers
     page = reader.pages[page_num]  # Get the page object.
     writer.add_page(page) # Add the original page first
-    for (x0, top, x1, bottom) in text_bboxes.get(page_num, []):
+    for (x0, top, x1, bottom) in text_bboxes:
         # 1. Define the annotation rect: [x0, y0, x1, y1]
         # PDF y-axis runs bottom-up: so y0 = bottom, y1 = top
         rect = (x0, bottom, x1, top)
