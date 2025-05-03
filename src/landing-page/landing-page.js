@@ -117,13 +117,13 @@ cancelBtn.addEventListener('click', () => {
  * 
  * @param {FileList} files - The uploaded PDF files
  */
-async function SubmitPdf(files) {
-    if (files.length > 0) {
+async function SubmitPdf() {
+    if (uploadedFiles.length > 0) {
         fileUploadError.classList.add('d-none');
 
         const formData = new FormData();
-        for (let i = 0; i < files.length; i++) {
-            formData.append('pdfs', files[i]);
+        for (let i = 0; i < uploadedFiles.length; i++) {
+            formData.append('pdfs', uploadedFiles[i]);
         }
 
         try {
@@ -131,6 +131,10 @@ async function SubmitPdf(files) {
                 method: "POST",
                 body: formData
             });
+
+            console.log(`Response Code: ${response.status}`);
+            const responseText = await response.text();
+            console.log(`Response Body: ${responseText}`);
 
             if (!response.ok) {
                 window.alert("Error with the server");
@@ -151,7 +155,6 @@ async function SubmitPdf(files) {
         }
 
     } else {
-        fileUploadError.textContent = "⚠️ Please upload at least one PDF.";
         fileUploadError.classList.remove('d-none');
     }
 }
