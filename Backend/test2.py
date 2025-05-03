@@ -9,8 +9,9 @@ os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 client = genai.Client(api_key=os.environ["API_KEY"])
 
 # 2. Read PDF
-with open(r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf", "rb") as f:
-    pdf_data = f.read()  #:contentReference[oaicite:7]{index=7}
+value = input("File to search in: ")  
+with open(value, 'rb') as pdf_file:
+    pdf_data = pdf_file.read()
 
 
 # Load the extended schema
