@@ -7,7 +7,7 @@ with open(r"response_schema.json", "r") as f:
 search_documents = FunctionDeclaration(
         name="search_documents",
         description="""
-            Search all documents for the query. Find all relevant information and extract it.
+            "Searches the document for text or image elements similar to a user query and returns their page number and bounding box.
         """,
         parameters=response_schema
         )
