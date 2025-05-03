@@ -127,7 +127,7 @@ async function SubmitPdf(files) {
         }
 
         try {
-            const response = await fetch("BACKEND/ENDPOINT", {
+            const response = await fetch("http://34.141.67.42:3000/submit", {
                 method: "POST",
                 body: formData
             });
