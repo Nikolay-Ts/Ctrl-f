@@ -115,16 +115,23 @@ cancelBtn.addEventListener('click', () => {
  * Sends uploaded PDF files to the backend for annotation.
  * Saves the response JSON to sessionStorage under 'annotatedPdfs'.
  * 
+ * @param {String} query
  * @param {FileList} files - The uploaded PDF files
  */
 async function SubmitPdf() {
     if (uploadedFiles.length > 0) {
         fileUploadError.classList.add('d-none');
 
+        const prompt = promptInput.value.trim();
+
         const formData = new FormData();
         for (let i = 0; i < uploadedFiles.length; i++) {
             formData.append('pdfs', uploadedFiles[i]);
         }
+
+        formData.append("prompt", prompt)
+
+        console.log(formData); //TODO: Remove in prod
 
         try {
             const response = await fetch("http://34.141.67.42:3000/submit", {
@@ -159,7 +166,96 @@ async function SubmitPdf() {
     }
 }
 
-// Trigger fade-in on page load
 window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loaded');
 });
+
+function showPdf() {
+    document.getElementById('pdfSection').classList.remove('d-none');
+    document.getElementById('videoSection').classList.add('d-none');
+}
+
+function showVideo() {
+    document.getElementById('pdfSection').classList.add('d-none');
+    document.getElementById('videoSection').classList.remove('d-none');
+}
+
+const youtubeUrlInput = document.getElementById('youtubeUrl');
+const youtubeLinkWarning = document.getElementById('youtubeLinkWarning');
+
+function validateYouTubeLink() {
+    const url = youtubeUrlInput.value.trim();
+    if (!url) {
+        youtubeLinkWarning.classList.remove('d-none');
+        return false;
+    } else {
+        youtubeLinkWarning.classList.add('d-none');
+        return true;
+    }
+}
+
+function validateVideoPrompt() {
+    const prompt = document.getElementById('videoPromptInput').value.trim();
+    const promptGuard = document.querySelector('#videoSection #promptGuard');
+
+    if (!prompt) {
+        promptGuard.classList.remove('d-none');
+        return false;
+    } else {
+        promptGuard.classList.add('d-none');
+        return true;
+    }
+}
+
+youtubeUrlInput.addEventListener('input', () => {
+    if (youtubeUrlInput.value.trim()) {
+        youtubeLinkWarning.classList.add('d-none');
+    }
+});
+
+/**
+ * 
+ * @param {string} prompt
+ * @param {string} url
+ * 
+ * @returns 
+ */
+async function submitVideo() {
+    if (!validateYouTubeLink()) return;
+    if (!validateVideoPrompt()) return;
+
+    const url = youtubeUrlInput.value.trim();
+    const prompt = promptInput.value.trim();
+
+    const formData = new FormData();
+    formData.append("prompt", prompt);
+    formData.append("video", url);
+
+    try {
+        const response = await fetch("http://34.141.67.42:3000/submit-video", {
+            method: "POST",
+            body: formData
+        });
+
+        console.log(`Response Code: ${response.status}`);
+        const responseText = await response.text();
+        console.log(`Response Body: ${responseText}`);
+
+        if (!response.ok) {
+            window.alert("Error with the server");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data) {
+            window.alert("The data seems to be empty");
+            return;
+        }
+
+        sessionStorage.setItem("annotatedVideo", JSON.stringify(data));
+    } catch (error) {
+        console.error(error);
+        window.alert("Error with the server");
+    }
+}
