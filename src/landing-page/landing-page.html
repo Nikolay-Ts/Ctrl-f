@@ -65,7 +65,6 @@
     </div>
   </div>
 
-  <!-- Video Input Section -->
   <div id="videoSection" class="container d-flex d-none justify-content-center align-items-center min-vh-100">
     <div class="w-100" style="max-width: 650px;">
       <div class="btn-group w-100 mb-3" role="group">
@@ -75,13 +74,20 @@
 
       <div class="ultra-card p-5 shadow-lg w-100 equal-height-card">
         <h2 class="text-center mb-4">Transcribe YouTube Video</h2>
+      
         <div class="mb-4">
           <label for="youtubeUrl" class="form-label">YouTube Link:</label>
-          <input type="url" id="youtubeUrl" class="form-control" placeholder="e.g. https://www.youtube.com/watch?v=..." />
+          <input type="url" id="youtubeUrl" class="form-control bg-white text-dark" placeholder="e.g. https://www.youtube.com/watch?v=..." />
           <p id="youtubeLinkWarning" class="text-danger small mt-2 d-none">
             ⚠️ Please enter a YouTube link.
           </p>
         </div>
+      
+        <div class="mb-4">
+          <label for="videoPromptInput" class="form-label">Prompt:</label>
+          <textarea id="videoPromptInput" class="form-control grow-textarea" placeholder="E.g. Where in the video does it mention Markov chains?"></textarea>
+        </div>
+      
         <div class="text-end">
           <button class="btn btn-dark px-4 py-2 shadow" onclick="transcribeVideo()">Transcribe</button>
         </div>
