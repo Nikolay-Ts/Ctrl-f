@@ -111,11 +111,45 @@ cancelBtn.addEventListener('click', () => {
     updateFilePreview();
 });
 
-function SubmitPdf() {
-
-    if (uploadedFiles.length > 0) {
+/**
+ * Sends uploaded PDF files to the backend for annotation.
+ * Saves the response JSON to sessionStorage under 'annotatedPdfs'.
+ * 
+ * @param {FileList} files - The uploaded PDF files
+ */
+async function SubmitPdf(files) {
+    if (files.length > 0) {
         fileUploadError.classList.add('d-none');
-        // TODO: make logic to send the files to the backend 
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('pdfs', files[i]);
+        }
+
+        try {
+            const response = await fetch("BACKEND/ENDPOINT", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                window.alert("Error with the server");
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!data) {
+                window.alert("The data seems to be empty");
+                return;
+            }
+
+            sessionStorage.setItem("annotatedPdfs", JSON.stringify(data));
+        } catch (error) {
+            console.error(error);
+            window.alert("Error with the server");
+        }
+
     } else {
         fileUploadError.textContent = "⚠️ Please upload at least one PDF.";
         fileUploadError.classList.remove('d-none');
