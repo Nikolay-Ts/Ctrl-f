@@ -1,21 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
-	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Write([]byte("pong"))
-		w.WriteHeader(http.StatusOK)
-	})
+	rand.Seed(time.Now().UnixNano())
+
+	port := os.Getenv("PORT")
 
 	http.HandleFunc("/submit", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -34,40 +30,28 @@ func main() {
 
 		r.ParseMultipartForm(20 << 20) // 20 MB limit
 
-		files := r.MultipartForm.File["pdfs"]
-		if len(files) == 0 {
-			http.Error(w, "No files uploaded", http.StatusBadRequest)
+		var user_request UserRequest
+		user_request.From(r.MultipartForm)
+
+		var dir UniqueDir
+		err := dir.New()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		defer dir.Clean()
 
-		for _, fileHeader := range files {
-			file, err := fileHeader.Open()
+		for _, fileHeader := range user_request.Files {
+			err := SaveFile(fileHeader, dir.Path)
 			if err != nil {
-				http.Error(w, "Error opening file", http.StatusInternalServerError)
-				return
-			}
-			defer file.Close()
-
-			dst, err := os.Create("./uploads/" + fileHeader.Filename)
-			if err != nil {
-				http.Error(w, "Error creating file", http.StatusInternalServerError)
-				return
-			}
-			defer dst.Close()
-
-			_, err = io.Copy(dst, file)
-			if err != nil {
-				http.Error(w, "Error saving file", http.StatusInternalServerError)
-				return
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 
-			fmt.Fprintf(w, "Uploaded: %s\n", fileHeader.Filename)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 	})
 
-	port := os.Getenv("PORT")
 
 	log.Printf("Listening on: localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
