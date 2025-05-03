@@ -1,3 +1,4 @@
+import json
 from google import genai
 from google.genai import types
 import httpx
@@ -10,6 +11,11 @@ client = genai.Client(api_key=os.environ["API_KEY"])
 # 2. Read PDF
 with open(r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf", "rb") as f:
     pdf_data = f.read()  #:contentReference[oaicite:7]{index=7}
+
+
+# Load the extended schema
+with open("response_schema.json", "r", encoding="utf-8") as f:
+    response_schema = json.load(f)
 
 response_schema = {
   "type": "object",
