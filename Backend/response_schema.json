@@ -6,17 +6,17 @@
         "items": {
           "type": "object",
           "properties": {
-            "text": { "type": "string" },
-            "page": { "type": "integer" },
+            "text": {"type": "string"},
+            "page": {"type": "integer"},
             "bbox": {
               "type": "array",
-              "items": { "type": "integer" },
+              "items": {"type": "integer"},
               "minItems": 4,
               "maxItems": 4,
-              "description": "Normalized [y_min, x_min, y_max, x_max] in 0–1000 grid"
+              "description": "[y_min, x_min, y_max, x_max] normalized 0–1000"
             }
           },
-          "required": ["text", "page", "bbox"]
+          "required": ["text","page","bbox"]
         }
       }
     },
