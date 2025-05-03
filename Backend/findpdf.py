@@ -114,40 +114,32 @@ doc = fitz.open(pdf_path)
 term_lower = term.lower()
 
 # For each page in AI coords, find the exact word bbox in the PDF
+# For each AI‐reported page, search the term exactly
 for hit in coords:
     page_idx = hit["page"] - 1
-    page = doc[page_idx]
-    page_height = page.rect.height
+    page     = doc[page_idx]
 
-    # Extract all words: returns list of (x0, y0, x1, y1, word)
-    words = page.get_text("words")
-    for x0, y0, x1, y1, word in words:
-        if word.lower() == term_lower:
-            # Flip Y for top-left origin
-            new_y0 = page_height - y1
-            new_y1 = page_height - y0
+    # Use PyMuPDF to locate the term precisely
+    exact_rects = page.search_for(term)
+    for rect in exact_rects:
+        annot = page.add_highlight_annot(rect)
+        annot.update()
 
-            # Create & apply highlight annotation
-            rect = fitz.Rect(x0, new_y0, x1, new_y1)
-            annot = page.add_highlight_annot(rect)
-            annot.update()
+# Determine the directory where the script resides
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Save highlighted PDF
-output_pdf = "highlighted_output.pdf"
+# Define the output file paths
+output_pdf = os.path.join(script_dir, "highlighted_output.pdf")
+output_json = os.path.join(script_dir, "coordinates.json")
+
+# Save the highlighted PDF
 doc.save(output_pdf, garbage=4, deflate=True)
 doc.close()
 
-# Save coords JSON for record
-output_json = "coordinates.json"
+# Save the coordinates JSON
 with open(output_json, "w") as f:
     json.dump(coords, f, indent=4)
 
 print(f"Saved: {output_pdf}")
 print(f"Saved: {output_json}")
-
-# Download in Colab
-if COLAB:
-    files.download(output_pdf)
-    files.download(output_json)
-else:
-    print(f"\n🔍 Find your files here: {os.getcwd()}/")
+print(f"Your files are in: {script_dir}")
