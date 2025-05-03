@@ -44,6 +44,8 @@ func main() {
 			}
 
 			fmt.Fprintf(w, "Uploaded: %s\n", fileHeader.Filename)
+			w.WriteHeader(http.StatusOK)
+			return
 		}
 	})
 
