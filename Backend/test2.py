@@ -5,20 +5,17 @@ import pdfplumber
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Highlight
 from pypdf.generic import ArrayObject, FloatObject
-from functions import search_documents
 
 # Set your API key
 os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 
 # Input the term to search.
 value = input("Enter term to find: ")
-
-# 2. Read PDF
-value = input("File to search in: ")  
+pdf_path = input("File to search in: ")  
 with open(value, 'rb') as pdf_file:
     pdf_data = pdf_file.read()
-
-# Load the extended schema
+    
+# Load the response schema
 with open("response_schema.json", "r", encoding="utf-8") as f:
     response_schema = json.load(f)
 
@@ -33,8 +30,29 @@ generation_config = types.GenerateContentConfig(
     tools=[tool],
 )
 # Path to the PDF file
-pdf_path = r"C:\Users\ribad\OneDrive - Constructor University\GDGHack\Ctrl-f\data\practice_sheet.pdf"
 
+text_bboxes = {}
+coordinates_data = [] # To store the coordinates
+
+# Extract text and bounding boxes using pdfplumber
+with pdfplumber.open(pdf_path) as pdf:
+    for i, page in enumerate(pdf.pages):
+        words = page.extract_words()
+        text_bboxes[i] = [
+            (float(w["x0"]), float(w["top"]), float(w["x1"]), float(w["bottom"]))
+            for w in words if w["text"].lower() == value.lower()
+        ]
+        # Store the coordinates
+        for w in words:
+            if w["text"].lower() == value.lower():
+                coord_dict = {
+                    "page_number": i + 1,  # Page numbers start from 1
+                    "x0": float(w["x0"]),
+                    "top": float(w["top"]),
+                    "x1": float(w["x1"]),
+                    "bottom": float(w["bottom"]),
+                }
+                coordinates_data.append(coord_dict)
 
 # Create PDF reader and writer
 reader = PdfReader(pdf_path)
