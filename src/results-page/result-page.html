@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ctrl-F Results</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="result-page.css" rel="stylesheet" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
+    <div class="container-fluid justify-content-center">
+      <a class="navbar-brand" href="../landing-page/landing-page.html">
+        <img src="/src/assets/logo.png" alt="Ctrl-F Logo" height="70">
+      </a>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h3 class="text-light mb-4">Search Results</h3>
+    <div id="resultsContainer" class="d-flex flex-column gap-4"></div>
+  </div>
+
+  <script>
+    // Mock data (normally pulled from sessionStorage)
+    const mockData = {
+      matches: [
+        {
+          text: "This is a relevant match from page 3 with some highlighted content.",
+          page: 3,
+          bbox: [100, 200, 150, 250]
+        },
+        {
+          text: "Another important snippet found on page 12 that matches your prompt.",
+          page: 12,
+          bbox: [300, 100, 350, 180]
+        },
+        {
+          text: "Interesting point discussed on page 7 regarding system design.",
+          page: 7,
+          bbox: [220, 120, 260, 170]
+        }
+      ]
+    };
+
+    // Fetch from sessionStorage (uncomment for real data)
+    // const jsonData = JSON.parse(sessionStorage.getItem("searchResults"));
+    const jsonData = mockData; // Replace with line above for live usage
+
+    const container = document.getElementById("resultsContainer");
+    jsonData.matches.forEach((match, index) => {
+      const resultCard = document.createElement("div");
+      resultCard.className = "result-card p-4 rounded shadow";
+
+      resultCard.innerHTML = `
+        <div class="fw-bold text-primary mb-1">Page ${match.page}</div>
+        <div class="result-text text-light">${match.text}</div>
+      `;
+
+      container.appendChild(resultCard);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('loaded');
+    });
+
+    container.appendChild(resultCard);
+    setTimeout(() => {
+        resultCard.classList.add("loaded");
+    }, 50);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

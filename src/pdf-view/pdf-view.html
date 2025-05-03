@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ctrl-F PDF Viewer</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="result-page.css" rel="stylesheet" />
+  <link href="pdf-view.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     #pdf-render {
@@ -168,13 +168,12 @@
   });
 
   document.getElementById('searchBtn').addEventListener('click', () => {
-    renderPage(currentPage); // re-render current page with search term
+    renderPage(currentPage);
   });
 
   window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loaded');
   });
-
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
