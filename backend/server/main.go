@@ -25,6 +25,7 @@ func main() {
 
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			log.Println("Method not allowed:", r.Method)
 			return
 		}
 
@@ -37,6 +38,7 @@ func main() {
 		err := dir.New()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err.Error())
 			return
 		}
 		defer dir.Clean()
@@ -45,6 +47,7 @@ func main() {
 			err := SaveFile(fileHeader, dir.Path)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Println(err.Error())
 			}
 
 			w.WriteHeader(http.StatusOK)
