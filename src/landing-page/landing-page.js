@@ -159,7 +159,43 @@ async function SubmitPdf() {
     }
 }
 
-// Trigger fade-in on page load
 window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loaded');
 });
+
+function showPdf() {
+    document.getElementById('pdfSection').classList.remove('d-none');
+    document.getElementById('videoSection').classList.add('d-none');
+}
+
+function showVideo() {
+    document.getElementById('pdfSection').classList.add('d-none');
+    document.getElementById('videoSection').classList.remove('d-none');
+}
+
+const youtubeUrlInput = document.getElementById('youtubeUrl');
+const youtubeLinkWarning = document.getElementById('youtubeLinkWarning');
+
+function validateYouTubeLink() {
+    const url = youtubeUrlInput.value.trim();
+    if (!url) {
+        youtubeLinkWarning.classList.remove('d-none');
+        return false;
+    } else {
+        youtubeLinkWarning.classList.add('d-none');
+        return true;
+    }
+}
+
+youtubeUrlInput.addEventListener('input', () => {
+    if (youtubeUrlInput.value.trim()) {
+        youtubeLinkWarning.classList.add('d-none');
+    }
+});
+
+function transcribeVideo() {
+    console.log("Meow");
+    if (!validateYouTubeLink()) return;
+    const url = youtubeUrlInput.value.trim();
+    alert(`Transcribing video: ${url}`);
+}

@@ -12,16 +12,12 @@
 <body>
   <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-      
-      <div class="d-flex" style="width: 33%;">
-      </div>
-  
+      <div class="d-flex" style="width: 33%;"></div>
       <div class="d-flex justify-content-center" style="width: 33%;">
         <a class="navbar-brand" href="">
           <img src="/src/assets/logo.png" alt="Ctrl-F Logo" height="70">
         </a>
       </div>
-  
       <div class="d-flex justify-content-end align-items-center" style="width: 33%;">
         <ul class="navbar-nav flex-row">
           <li class="nav-item">
@@ -35,35 +31,60 @@
     </div>
   </nav>
 
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="ultra-card p-5 shadow-lg w-100" style="max-width: 650px;">
-      <h2 class="text-center mb-4">Upload & Prompt</h2>
-
-      <div id="dropZone" class="drop-zone mb-4">
-        <p id="dropText" class="mb-2">Drop PDF files here<br>or click below to upload</p>
-        <div id="filePreviewContainer" class="file-preview-container d-flex flex-wrap justify-content-start gap-3 mt-3"></div>
+  
+  <div id="pdfSection" class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="w-100" style="max-width: 650px;">
+      <div class="btn-group w-100 mb-3" role="group">
+        <button type="button" class="btn btn-dark w-50" id="pdfBtn" onclick="showPdf()">Documents</button>
+        <button type="button" class="btn btn-outline-dark w-50" id="videoBtn" onclick="showVideo()">Videos</button>
       </div>
 
-      <p id="fileUploadError" class="text-danger small mt-2 d-none">
-        ⚠️ You can only upload up to 10 PDF files.
-      </p>
+      <div class="ultra-card p-5 shadow-lg w-100 equal-height-card">
+        <h2 class="text-center mb-4">Upload & Prompt</h2>
+        <div id="dropZone" class="drop-zone mb-4">
+          <p id="dropText" class="mb-2">Drop PDF files here<br>or click below to upload</p>
+          <div id="filePreviewContainer" class="file-preview-container d-flex flex-wrap justify-content-start gap-3 mt-3"></div>
+        </div>
+        <p id="fileUploadError" class="text-danger small mt-2 d-none">⚠️ You can only upload up to 10 PDF files.</p>
+        <div class="mb-4 text-center">
+          <label for="fileInput" class="btn btn-dark custom-upload-label">
+            Choose PDF Files
+            <input type="file" id="fileInput" accept="application/pdf" multiple hidden />
+          </label>
+        </div>
+        <div class="mb-4">
+          <label for="promptInput" class="form-label">Prompt:</label>
+          <textarea id="promptInput" class="form-control grow-textarea" placeholder="E.g. Summarize section 3..."></textarea>
+        </div>
+        <div id="actionButtons" class="text-end d-flex justify-content-end gap-3 align-items-center flex-wrap">
+          <p id="fileLimitWarning" class="text-danger mb-0 me-auto d-none">⚠️ You can upload a maximum of 10 files.</p>
+          <button id="cancelBtn" class="btn btn-dark px-4 py-2 shadow d-none">Cancel</button>
+          <button class="btn btn-dark px-4 py-2 shadow" onclick="SubmitPdf()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-      <div class="mb-4 text-center">
-        <label for="fileInput" class="btn btn-dark custom-upload-label">
-          Choose PDF Files
-          <input type="file" id="fileInput" accept="application/pdf" multiple hidden />
-        </label>
+  <!-- Video Input Section -->
+  <div id="videoSection" class="container d-flex d-none justify-content-center align-items-center min-vh-100">
+    <div class="w-100" style="max-width: 650px;">
+      <div class="btn-group w-100 mb-3" role="group">
+        <button type="button" class="btn btn-outline-dark w-50" onclick="showPdf()">Documents</button>
+        <button type="button" class="btn btn-dark w-50" onclick="showVideo()">Videos</button>
       </div>
 
-      <div class="mb-4">
-        <label for="promptInput" class="form-label">Prompt:</label>
-        <textarea id="promptInput" class="form-control grow-textarea" placeholder="E.g. Summarize section 3..."></textarea>
-      </div>
-
-      <div id="actionButtons" class="text-end d-flex justify-content-end gap-3 align-items-center flex-wrap">
-        <p id="fileLimitWarning" class="text-danger mb-0 me-auto d-none">⚠️ You can upload a maximum of 10 files.</p>
-        <button id="cancelBtn" class="btn btn-dark px-4 py-2 shadow d-none">Cancel</button>
-        <button class="btn btn-dark px-4 py-2 shadow" onclick="SubmitPdf()">Submit</button>
+      <div class="ultra-card p-5 shadow-lg w-100 equal-height-card">
+        <h2 class="text-center mb-4">Transcribe YouTube Video</h2>
+        <div class="mb-4">
+          <label for="youtubeUrl" class="form-label">YouTube Link:</label>
+          <input type="url" id="youtubeUrl" class="form-control" placeholder="e.g. https://www.youtube.com/watch?v=..." />
+          <p id="youtubeLinkWarning" class="text-danger small mt-2 d-none">
+            ⚠️ Please enter a YouTube link.
+          </p>
+        </div>
+        <div class="text-end">
+          <button class="btn btn-dark px-4 py-2 shadow" onclick="transcribeVideo()">Transcribe</button>
+        </div>
       </div>
     </div>
   </div>
