@@ -9,9 +9,9 @@ def getCoords(needle :str, pdf_path :str, page :int):
 
     with pdfplumber.open(pdf_path) as pdf: 
         words = pdf.pages[page].extract_words()
-
+        
         for i, word in enumerate(words):
-            if word["text"].lower() == needle.lower():
+            if word["text"].lower() in needle.lower():
                 coord = {
                         "x0": float(word["x0"]),
                         "x1": float(word["x1"]),
@@ -20,5 +20,4 @@ def getCoords(needle :str, pdf_path :str, page :int):
                         }
 
                 coords.append(coord)
-
     return coords
