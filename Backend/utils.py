@@ -1,6 +1,6 @@
 import pdfplumber
 
-def getCoords(needle :str, pdf_path :str):
+def getCoords(needle :str, pdf_path :str, page :int):
     """
     Find all occurances of `needle` within PDF with `pdf_path`. 
     Coordinates are returned as an array.
@@ -8,18 +8,16 @@ def getCoords(needle :str, pdf_path :str):
     coords = []
 
     with pdfplumber.open(pdf_path) as pdf: 
-        for i, page in enumerate(pdf.pages):
-            words = page.extract_words()
+        words = pdf.pages[page].extract_words()
+        
+        for i, word in enumerate(words):
+            if word["text"].lower() in needle.lower():
+                coord = {
+                        "x0": float(word["x0"]),
+                        "x1": float(word["x1"]),
+                        "top": float(word["top"]),
+                        "bottom": float(word["bottom"]),
+                        }
 
-            for i, word in enumerate(words):
-                if word["text"] == needle:
-                    coord = {
-                            "x0": float(word["x0"]),
-                            "x1": float(word["x1"]),
-                            "top": float(word["top"]),
-                            "bottom": float(word["bottom"]),
-                            }
-
-                    coords.append(coord)
-
-        return coords
+                coords.append(coord)
+    return coords
