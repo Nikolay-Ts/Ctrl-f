@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ctrl-F PDF Viewer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="result-page.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    #pdf-render {
+      border: 1px solid #ccc;
+      max-width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    .viewer-controls {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <div class="d-flex" style="width: 33%;"></div>
+      <div class="d-flex justify-content-center" style="width: 33%;">
+        <a class="navbar-brand" href="">
+          <img src="/src/assets/logo.png" alt="Ctrl-F Logo" height="70">
+        </a>
+      </div>
+      <div class="d-flex justify-content-end align-items-center" style="width: 33%;">
+        <ul class="navbar-nav flex-row">
+          <li class="nav-item">
+            <a class="nav-link nav-lg-link text-light mx-3" href="../about-page/about-page.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-lg-link text-light mx-3" href="https://github.com/Nikolay-Ts/Ctrl-f" target="_blank">Source Code</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container d-flex flex-column justify-content-center align-items-center py-5 min-vh-100">
+    <div class="ultra-card p-5 shadow-lg w-100" style="max-width: 850px;">
+      <h2 class="text-center mb-4">PDF Viewer</h2>
+
+      <div class="viewer-controls d-flex align-items-center justify-content-center gap-3 mb-4">
+        <label for="pageNumber" class="form-label mb-0">Go to page:</label>
+        <input type="number" id="pageNumber" class="form-control w-auto" min="1" value="1">
+        <button id="loadPageBtn" class="btn btn-dark">Load Page</button>
+      </div>
+
+      <canvas id="pdf-render"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const url = '/src/test-data/RIS-lab.pdf';
+    const canvas = document.getElementById('pdf-render');
+    const ctx = canvas.getContext('2d');
+    const pageNumberInput = document.getElementById('pageNumber');
+    const loadPageBtn = document.getElementById('loadPageBtn');
+    let pdfDoc = null;
+
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      pdfDoc = pdf;
+      renderPage(1);
+    });
+
+    function renderPage(num) {
+        if (!pdfDoc){ 
+            console.log("No file");
+            return;
+        }
+
+        pdfDoc.getPage(num).then(page => {
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            page.render(renderContext);
+        });
+    }
+
+    loadPageBtn.addEventListener('click', () => {
+      const pageNum = parseInt(pageNumberInput.value);
+      if (pdfDoc && pageNum >= 1 && pageNum <= pdfDoc.numPages) {
+        renderPage(pageNum);
+      } else {
+        alert('Invalid page number.');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        document.body.classList.add('loaded');
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,205 @@
+body {
+    background-image: url('./../assets/Background.png');
+    background-repeat: repeat;
+    background-size: auto;
+    background-color: #f8f8f8;
+    font-family: 'Segoe UI', sans-serif;
+    color: #111;
+    opacity: 0;
+
+}
+
+body.loaded {
+    opacity: 1;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link {
+    color: #111 !important;
+}
+
+.ultra-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    color: #111;
+}
+
+.drop-zone {
+    border: 1.5px dashed rgba(100, 100, 100, 0.4);
+    border-radius: 14px;
+    padding: 30px 20px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.4);
+    color: #333;
+    transition: all 0.3s ease-in-out;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.drop-zone.dragover {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+    color: #0d6efd;
+}
+
+input[type="file"],
+textarea.grow-textarea,
+input[type="number"] {
+    background-color: rgba(255, 255, 255, 0.4);
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(4px);
+}
+
+textarea.grow-textarea {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 100px;
+    color: #222;
+}
+
+textarea.grow-textarea::placeholder {
+    color: #666;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+.nav-blur {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 1030;
+}
+
+.custom-upload-label {
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.custom-upload-label:hover {
+    background-color: #0b5ed7;
+    box-shadow: 0 6px 14px rgba(13, 110, 253, 0.4);
+}
+
+.btn-dark.custom-upload-label,
+.btn.btn-dark {
+    background-color: #2c2c2c;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.btn-dark.custom-upload-label:hover,
+.btn.btn-dark:hover {
+    background-color: #1f1f1f;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.nav-lg-link {
+    font-size: 1.15rem;
+    font-weight: 500;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.file-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 10px;
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    color: #111;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+    max-width: 220px;
+    position: relative;
+    padding-right: 30px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.file-preview.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.file-preview img {
+    width: 24px;
+    height: auto;
+}
+
+.file-preview .btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border-radius: 50%;
+    padding: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 0.9;
+    cursor: pointer;
+    filter: brightness(0);
+}
+
+.file-preview .btn-close:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+    opacity: 1;
+}
+
+#fileLimitWarning,
+#fileUploadError {
+    font-size: 0.9rem;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+#fileLimitWarning:not(.d-none),
+#fileUploadError:not(.d-none) {
+    opacity: 1;
+}
+
+.btn {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#pdf-render {
+    border: 1px solid #ccc;
+    max-width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    width: 100%;
+    height: auto;
+}
