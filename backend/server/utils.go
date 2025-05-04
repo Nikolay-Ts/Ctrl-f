@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"os/exec"
@@ -55,7 +56,7 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
 
 	filesMap := make(map[string]string)
 	for _, entry := range entries {
-        if entry.IsDir() || !strings.HasPrefix(entry.Name(), "annotated_") {
+        if entry.IsDir() || !strings.HasPrefix(entry.Name(), "highlight_") {
             continue
         }
 
@@ -67,6 +68,8 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
         encoded := base64.StdEncoding.EncodeToString(data)
         filesMap[entry.Name()] = encoded
     }
+
+	log.Println(filesMap)
 
 	return json.Marshal(filesMap)
 }

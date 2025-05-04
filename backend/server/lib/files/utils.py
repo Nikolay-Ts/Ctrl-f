@@ -50,7 +50,10 @@ def getMatches(pdf_path: str, matches: list):
 
     # Generate output filename based on input pdf_path
     # This will create highlight_original_filename.pdf for each processed PDF
-    output_filename = "highlight_" + os.path.basename(pdf_path)
+    output_filename = os.path.join(
+            os.path.dirname(pdf_path),
+            "highlight_" + os.path.basename(pdf_path))
+
     # Ensure the output file has a .pdf extension
     if not output_filename.lower().endswith(".pdf"):
         output_filename += ".pdf"
