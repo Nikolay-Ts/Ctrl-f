@@ -52,7 +52,7 @@ print("📝 Transcript Preview:\n")
 
 print(transcript[:1000])
 
-genai.configure(api_key="AIzaSyABwjYKnH7he4U69ZhdykE6NTMaIoBc8MM")
+genai.configure(api_key=os.getenv("GEMINI_API"))
 
 model = genai.GenerativeModel("gemini-1.5-flash")
 
