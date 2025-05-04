@@ -70,4 +70,4 @@ All interactions between components use well-structured JSON “contracts” to 
    git clone https://github.com/your-org/ctrl-f.git
    cd ctrl-f
 
-2. If you want to just use the project go to ctrl-f.world 
+2. If you want to just use the project go to ctrl-f.world although past the 5th of May the server will be down because of token depletion so then it can be ran locally using a live server on the landing page.html file.
