@@ -1,12 +1,52 @@
 [
     {
+        "page": 1,
+        "text": "The major goal of this system is to analyze the diversified machine learning algorithms which are required to develop customer churn prediction models and identify churn reasons in order to give them with retention stra- tegies and plans.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 1,
+        "text": "This system uses classification techniques to find out the leave subscriptions and collects the reasons behind the leave subscription of customers in the telecom industry.",
+        "filename": "Paper1.pdf"
+    },
+    {
         "page": 2,
-        "text": "While modeling development, a lot of information-rich features are neglected in In Feature selection Process. Mostly statistical methods are being used in a diverse domain, which tends to give undesirable results of the present predictive models. The feature selection is another huge problem with the existing models.",
+        "text": "This will be of great help to provide strong retention strategies for the different groups of churners may it be different promotions depending upon the churn factors for the different group of churners.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "The results demonstrated that utilizing machine learning techniques improved the performance of their proposed churn model.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "The efficiency of the model can be gained by making the best training model with reduced dimension and size.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Effective classifiers like KNN, Decision tree classifier, random forest are studied [5].",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 3,
+        "text": "Tools for customer analytics and insight can be used to forecast customer behavior, allowing service providers to decide which strategies will increase retention rates the most effectively.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 3,
+        "text": "The model proposed uses classification techniques to find the leave subscriptions and collects the reasons behind it in the telecom industry. The aim of this model is to analyze the various machine learning algorithms",
         "filename": "Paper1.pdf"
     },
     {
         "page": 4,
-        "text": "3) DP (Data Processing)\n4) FS (Feature Selection) is measured by Pearson correlation formula (Cr) where set of numerical attributes is taken 'X' ranging from\nX1, X2, X3......., Xn consider a set of attributes X, form a subset of two attributes each, X= {{X1, X1,}, {X1, X2}, {X1, X3} .... {Xi, Xj}...\n{Xn, Xn}}",
+        "text": "Section 2 emphasizes system architecture of proposed system and proposed system model is presented in detail. Sequentially, Section 3 focuses on detailed dataset description based on single dataset including data pre-processing, and feature selection and also high- lighted multi dataset approach concisely.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 4,
+        "text": "For prediction there are many algorithms such as Support vector machine, K-nearest neighbor, J48, naive Bayes, logistic regression, LWL, Random Forest, Decision tree classifier which are used to resolve classification problems.",
         "filename": "Paper1.pdf"
     },
     {
@@ -15,18 +55,78 @@
         "filename": "Paper1.pdf"
     },
     {
+        "page": 6,
+        "text": "Data classification and pre-processing clean the data and make it easier to use. There are three steps in data preparation.",
+        "filename": "Paper1.pdf"
+    },
+    {
         "page": 8,
-        "text": "3.1.2. Feature selection\nThis is an important step in achieving our model's goal. Unnecessary data is discovered in datasets while training the model, resulting in a reduction in model accuracy. As a result, feature selection on a dataset is used to solve these issues.",
+        "text": "Univariate analysis - In data exploration, the distribution of individual predictions by churn will be determined, and the number of churners representing non-seniors will be determined.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "Bivariate analysis - It is used to find a value prediction for a single variable. Correlations between variables are simple to find.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "This is an important step in achieving our model's goal. Unnecessary data is discovered in datasets while training the model, resulting in a reduction in model accuracy. As a result, feature selection on a dataset is used to solve these issues.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "Applying Machine Learning Algorithms [1] Decision tree: Decision tree are used to solve both classification and regression problem in the form of trees that can be incrementally updated by splitting the dataset into smaller dataset, where the result are represented by the leaf node.",
         "filename": "Paper1.pdf"
     },
     {
         "page": 9,
-        "text": "[3] Important Features or factors responsible for churning according to Decision Tree model: Finding the important factors that are responsible for churning makes it possible to find the service that is required to customer to prevent from attrition. This can be done using feature importance. Here the feature is ranked according to their importance. The most important feature at the top of list, while least important are at end of list.",
+        "text": "[2] Random Forest tree: The random forest is a classification algorithm consisting of many decision trees.",
         "filename": "Paper1.pdf"
     },
     {
         "page": 9,
-        "text": "[4] Important Features or factors responsible for churning according to Random Forest Tree model: In this model from Fig. 5 the features importance ranked from 1st to last as,",
+        "text": "[3] Important Features or factors responsible for churning according to Decision Tree model: Finding the important factors that are responsible for churning makes it possible to find the service that is required to customer to prevent from attrition.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 10,
+        "text": "There exist multiple types of data in SyriaTel [25] as classified below which may be applied to construct our churn prediction model used in telecom sector.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 11,
+        "text": "So, in our proposed model using a Decision Tree classifier, the obtained accuracy of the model is 78%, which is very low, and printing the classification report led to the dataset unbalance, which results in less accuracy.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 11,
+        "text": "Missing values are handled with carefully, and accuracy is maintained. It's even capable of handling big, multi-dimensional datasets.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 11,
+        "text": "For the minority class of churned consumers, employ a classification matrix to increase the model's performance.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 11,
+        "text": "The results of the Random Forest classifier model after up-sampling and ENN are shown in Table 4. As a result, the random forest classifier predicts churn with an overall accuracy of 99%.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 15,
+        "text": "Our system works effectively for achieving the major objective to analyze the various machine learning algorithms required to develop customer churn prediction models and in identification of churn reasons in order to give them with retention strategies and plans.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 15,
+        "text": "A customer churn system is based on machine learning methods, a decision tree classifier, and a random forest algorithm.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 15,
+        "text": "More advanced algorithms such as deep learning recurrent neural networks that help to identify nonlinear complex relationships between data variables which may be applicable in future study to estimate survival likelihood.",
         "filename": "Paper1.pdf"
     }
 ]

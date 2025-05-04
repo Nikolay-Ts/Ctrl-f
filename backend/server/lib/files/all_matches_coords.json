@@ -1,0 +1,247 @@
+[
+    {
+        "page": 1,
+        "text": "analyze the diversified machine learning algorithms which are required to develop customer",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 1,
+        "text": "classification algorithms such as Random Forest (RF), machine learning techniques such as KNN and",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Ullah, et al. [1] provided a customer attrition model for data analytics that is validated using common assessment measures. The results demonstrated that utilizing machine learning techniques improved the performance of their proposed churn model. The",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Ammar, et al. [2] presented a hybridized algorithm technique to predict churners that was quite efficient.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Effective classifiers like KNN, Decision tree classifier, random forest are studied [5].",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Machine learning techniques used [7,8] in developing this model for this work.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Random Forest and Decision Tree are used for this model.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Encouraged by the above-mentioned facts & observations, in this study, a model for prediction of churners with the help of different machine learning algorithms is proposed.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "Lalwani et al. [18] presented a comparative study of customer churn prediction in the telecommunication industry using well-known machine learning techniques like Logistic Regression, Nave Bayes, Support Vector Machines, Decision Trees, Random Forest, XGBoost Classifier, CatBoost Classifier, AdaBoost Classifier, and Extra Tree Classifier in this research paper.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "The experimental results demonstrates that two ensemble learning algorithms, Adaboost classifier and XGBoost classifier, have the highest accuracy when compared to other models, with an AUC score of 84 percent for the churn prediction problem.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "The model proposed uses classification techniques to find the leave subscriptions and collects the reasons behind it in the telecom industry. The aim of this model is to analyze the various machine learning algorithms",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "In this work the quality of prediction measurements for various prediction models is compared. Khalid, et al. [15] looked at different prediction models and compared the quality of prediction models such classification algorithms and decision trees.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "Moreover, this work uses intelligent rule-based techniques for decision making along with rough set to detect customer churn from non-churn customers. Ahmad et al. [25] focused on multi dataset approach for churn prediction which is applicable for telecommunication industry.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 3,
+        "text": "Tools for customer analytics and insight can be used to forecast customer behavior, allowing service providers to decide which strategies will increase retention rates the most effectively. Additionally, cutting-edge technology uses artificial intelligence and machine learning techniques to pinpoint the clients most likely to churn.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 4,
+        "text": "Churn predictions for the telecom industry have been carried out using literature with various methods that includes machine learning algorithms, data mining techniques and retention strategies.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 4,
+        "text": "For prediction there are many algorithms such as Support vector machine, K-nearest neighbor, J48, naive Bayes, logistic regression, LWL, Random Forest, Decision tree classifier which are used to resolve classification problems.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 5,
+        "text": "Then apply ML algorithm on new Dataset (consider as C)",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 8,
+        "text": "Applying Machine Learning Algorithms",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 8,
+        "text": "Decision tree: Decision tree are used to solve both classification and regression problem in the form of trees that can be incrementally updated by splitting the dataset into smaller dataset, where the result are represented by the leaf node.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 9,
+        "text": "Random Forest tree: The random forest is a classification algorithm consisting of many decision trees.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 9,
+        "text": "Advantages of Random Forest that it helps to solve both regression and classification problems.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 15,
+        "text": "Our system works effectively for achieving the major objective to analyze the various machine learning algorithms required to develop customer churn prediction models and in identification of churn reasons in order to give them with retention strategies and plans.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 15,
+        "text": "A customer churn system is based on machine learning methods, a decision tree classifier, and a random forest algorithm.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 15,
+        "text": "More advanced algorithms such as deep learning recurrent neural networks that help to identify nonlinear complex relationships between data variables which may be applicable in future study to estimate survival likelihood.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 16,
+        "text": "Alzubaidi AMN, Al-Shamery E. Predicting customer churn in telecom sector based on penalization techniques and ensemble machine learning.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 16,
+        "text": "Ahmad A, Jafar A, Aljoumaa K. Customer churn prediction in telecommunication using machine learning in big data platform.",
+        "filename": "Paper1 copy.pdf"
+    },
+    {
+        "page": 1,
+        "text": "analyze the diversified machine learning algorithms which are required to develop customer",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 1,
+        "text": "classification algorithms such as Random Forest (RF), machine learning techniques such as KNN and",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Encouraged by the above-mentioned facts & observations, in this study, a model for prediction of churners with the help of different machine learning algorithms is proposed.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Ullah, et al. [1] provided a customer attrition model for data analytics that is validated using common assessment measures. The results demonstrated that utilizing machine learning techniques improved the performance of their proposed churn model.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 2,
+        "text": "Machine learning techniques used [7,8] in developing this model for this work.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 4,
+        "text": "Decision tree classifier which are used to resolve classification problems. Random forest and Decision tree classifier are considered relevant with better accuracy and performance.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 5,
+        "text": "Then apply ML algorithm on new Dataset (consider as C)",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 4,
+        "text": "Applying ML Techniques",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "Applying Machine Learning Algorithms",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "[1] Decision tree: Decision tree are used to solve both classification and regression problem in the form of trees that can be incrementally updated by splitting the dataset into smaller dataset, where the result are represented by the leaf node.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 9,
+        "text": "[2] Random Forest tree: The random forest is a classification algorithm consisting of many decision trees.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 15,
+        "text": "Our system works effectively for achieving the major objective to analyze the various machine learning algorithms required to develop customer churn prediction models and in identification of churn reasons in order to give them with retention strategies and plans.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 15,
+        "text": "A customer churn system is based on machine learning methods, a decision tree classifier, and a random forest algorithm.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 1,
+        "text": "Algorithms and Data Structures",
+        "filename": "practice_sheet copy.pdf"
+    },
+    {
+        "page": 4,
+        "text": "Problem P.10 Greedy Algorithm",
+        "filename": "practice_sheet copy.pdf"
+    },
+    {
+        "page": 5,
+        "text": "Problem P.11 Graph Algorithms",
+        "filename": "practice_sheet copy.pdf"
+    },
+    {
+        "page": 5,
+        "text": "a) Prove that greedy algorithms that make the greedy choices of shortest processing time first tj",
+        "filename": "practice_sheet copy.pdf"
+    },
+    {
+        "page": 5,
+        "text": "b) Develop the greedy algorithm in pseudocode that makes the correct greedy choice. Use",
+        "filename": "practice_sheet copy.pdf"
+    },
+    {
+        "page": 1,
+        "text": "Algorithms and Data Structures",
+        "filename": "practice_sheet.pdf"
+    },
+    {
+        "page": 4,
+        "text": "Problem P.10 Greedy Algorithm",
+        "filename": "practice_sheet.pdf"
+    },
+    {
+        "page": 5,
+        "text": "Problem P.11 Graph Algorithms",
+        "filename": "practice_sheet.pdf"
+    },
+    {
+        "page": 5,
+        "text": "a) Prove that greedy algorithms that make the greedy choices of shortest processing time first tj",
+        "filename": "practice_sheet.pdf"
+    },
+    {
+        "page": 5,
+        "text": "b) Develop the greedy algorithm in pseudocode that makes the correct greedy choice. Use",
+        "filename": "practice_sheet.pdf"
+    }
+]
