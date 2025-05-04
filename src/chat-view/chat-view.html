@@ -10,9 +10,14 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="chat-view.css" />
+  <style>
+    .pdf-page { position: relative; margin: 1em 0; }
+    .highlightLayer div { pointer-events: none; }
+    .pdf-container { position: relative; overflow: auto; }
+  </style>
 </head>
 <body class="d-flex flex-column" style="height:100vh; margin:0">
-  <!-- Navbar (same as before) -->
+  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
       <div class="d-flex" style="width: 33%;"></div>
@@ -37,49 +42,151 @@
   <!-- Main -->
   <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
     <div class="row g-0 flex-grow-1">
-      <!-- Chat Column with left-hand “hits” sidebar -->
+      <!-- Chat Column -->
       <div class="col-md-8 p-3" style="min-height:0">
-              <div class="d-flex flex-row h-100">
-      
-                <!-- Sidebar for PDF hits (fixed width, scrollable) -->
-                <div id="hitSidebar"
-                    class="ultra-card p-3 me-3"
-                    style="width: 250px; overflow-y: auto;">
-                  <!-- JS can later inject a list of matches here -->
-                </div>
-      
-                <!-- Original chat area -->
-                <div class="d-flex flex-column flex-grow-1">
-                  <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
-                  <div class="chat-input-bar">
-                    <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
-                    <button id="sendBtn" aria-label="Send">&#10148;</button>
-                  </div>
-                </div>
-      
-              </div>
+        <div class="d-flex flex-row h-100">
+          <!-- Sidebar for PDF hits -->
+          <div id="hitSidebar"
+               class="ultra-card p-3 me-3"
+               style="width: 250px; overflow-y: auto;">
+            <!-- JS will inject a list of matches here -->
+          </div>
+          <!-- Chat area -->
+          <div class="d-flex flex-column flex-grow-1">
+            <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
+            <div class="chat-input-bar">
+              <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
+              <button id="sendBtn" aria-label="Send">&#10148;</button>
             </div>
-
-      <!-- PDF Sidebar (now embed) -->
-      <div class="col-md-4 p-3">
-        <div class="ultra-card p-3 shadow-lg pdf-container">
-          <div class="pdf-preview-container">
-            <embed
-              id="pdfEmbed"
-              src="../test-data/RIS-lab.pdf"
-              type="application/pdf"
-            />
           </div>
         </div>
+      </div>
+
+      <!-- PDF Sidebar using PDF.js -->
+      <div class="col-md-4 p-3">
+        <div class="ultra-card p-3 shadow-lg pdf-container" id="pdfContainer"></div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts: remove pdf.js since embed handles all pages -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- PDF.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.18.191/pdf.min.js"></script>
+  <!-- Highlight logic -->
   <script>
+    const pdfjsLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+    if (!pdfjsLib) {
+      console.error('PDF.js library not found. Ensure pdf.min.js is loaded before this script.');
+      return;
+}
+    /**
+     * Highlights matches in the rendered PDF.
+     */
+    async function getMatches(containerId, matches) {
+      if (!matches || matches.length === 0) return;
+      const pdf = window._loadedPdf;
+      const container = document.getElementById(containerId);
+
+      for (let m of matches) {
+        const pageIndex = m.page - 1;
+        try {
+          const page = await pdf.getPage(pageIndex + 1);
+          const viewport = page.getViewport({ scale: 1.0 });
+          const textContent = await page.getTextContent();
+          const matchesOnPage = [];
+
+          for (let item of textContent.items) {
+            const str = item.str;
+            if (str.includes(m.text)) {
+              let start = 0;
+              while ((start = str.indexOf(m.text, start)) !== -1) {
+                const transform = pdfjsLib.Util.transform(viewport.transform, item.transform);
+                const fontHeight = item.height * viewport.scale;
+                const avgCharWidth = (item.width * viewport.scale) / str.length;
+                const x = transform[4] + avgCharWidth * start;
+                const y = transform[5] - fontHeight;
+                matchesOnPage.push({ x, y, width: avgCharWidth * m.text.length, height: fontHeight });
+                start += m.text.length;
+              }
+            }
+          }
+
+          const pageDiv = container.querySelector(`#pageContainer${pageIndex + 1}`);
+          let hlLayer = pageDiv.querySelector('.highlightLayer');
+          if (!hlLayer) {
+            hlLayer = document.createElement('div');
+            hlLayer.className = 'highlightLayer';
+            hlLayer.style.position = 'absolute'; hlLayer.style.top = '0'; hlLayer.style.left = '0';
+            hlLayer.style.width = '100%'; hlLayer.style.height = '100%';
+            pageDiv.appendChild(hlayer);
+          }
+
+          matchesOnPage.forEach(rect => {
+            const hl = document.createElement('div');
+            Object.assign(hl.style, {
+              position: 'absolute',
+              left: `${rect.x}px`,
+              top: `${rect.y}px`,
+              width: `${rect.width}px`,
+              height: `${rect.height}px`,
+              background: 'rgba(255,255,0,0.4)'
+            });
+            hlLayer.appendChild(hl);
+          });
+        } catch (e) {
+          console.error(`Error highlighting page ${m.page}:`, e);
+        }
+      }
+    }
+
+    (async () => {
+      // Render PDF pages
+      const url = '../test-data/RIS-lab.pdf';
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      window._loadedPdf = pdf;
+      const container = document.getElementById('pdfContainer');
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.0 });
+        const pageDiv = document.createElement('div');
+        pageDiv.id = `pageContainer${i}`;
+        pageDiv.className = 'pdf-page';
+        pageDiv.style.width = `${viewport.width}px`;
+        pageDiv.style.height = `${viewport.height}px`;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        pageDiv.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const textLayerDiv = document.createElement('div');
+        textLayerDiv.className = 'textLayer';
+        Object.assign(textLayerDiv.style, {
+          position: 'absolute', top: '0', left: '0',
+          width: `${viewport.width}px`, height: `${viewport.height}px`
+        });
+        pageDiv.appendChild(textLayerDiv);
+        container.appendChild(pageDiv);
+
+        page.getTextContent().then(textContent => {
+          pdfjsLib.renderTextLayer({ textContent, container: textLayerDiv, viewport, textDivs: [] });
+        });
+      }
+
+      // Example: wire click from sidebar to highlight
+      document.getElementById('hitSidebar').addEventListener('click', e => {
+        if (e.target.matches('.hit-item')) {
+          const data = JSON.parse(e.target.dataset.match);
+          getMatches('pdfContainer', [data]);
+        }
+      });
+    })();
+
+    // Chat logic (unchanged)
     (function () {
-      // --- Chat / sessionStorage logic (unchanged) ---
       const chatContainer = document.getElementById('chatContainer');
       const inputEl = document.getElementById('chatInput');
       const sendBtn = document.getElementById('sendBtn');
@@ -103,10 +210,7 @@
         renderChat();
       }
 
-      // Initialize chat
       renderChat();
-
-      // Send handlers
       sendBtn.addEventListener('click', () => {
         const txt = inputEl.value.trim();
         if (!txt) return;
