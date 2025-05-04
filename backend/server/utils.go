@@ -44,16 +44,10 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
 
 // ExecVideo runs the python program to retrieve the timestamp where NEEDLE is mentioned
 // from the LINK.
-func ExecVideo(needle, link string) (int, error) {
-	out, err := exec.Command(
+func ExecVideo(needle, link string) ([]byte, error) {
+	return exec.Command(
 		"./lib/venv/bin/python3", 
 		"./lib/video/main.py", 
 		needle, 
 		link).Output()
-
-	if err != nil {
-		return -1, err
-	}
-
-	return strconv.Atoi(string(out))
 }

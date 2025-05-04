@@ -63,13 +63,12 @@ func main() {
 				return
 			}
 		} else if user_request.Video != "" {
-		}
-
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			log.Println(err.Error())
-			return
+			out, err = ExecVideo(user_request.Prompt, user_request.Video)
+			if err != nil {
+				http.Error(w, "Error: AI could not parse query!", http.StatusInternalServerError)
+				log.Println(err.Error())
+				return
+			}
 		}
 
 		w.WriteHeader(http.StatusOK)
