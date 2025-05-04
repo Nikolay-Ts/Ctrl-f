@@ -6,7 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -41,7 +41,7 @@ func (dir *UniqueDir) New() error {
 	}
 
 	uuid := fmt.Sprintf("%d-%d", time.Now().UnixNano(), rand.Int())
-	dir.Path = path.Join("data", uuid)
+	dir.Path = filepath.Join("data", uuid)
 
 	err = os.Mkdir(dir.Path, 0770)
 	if err != nil {
