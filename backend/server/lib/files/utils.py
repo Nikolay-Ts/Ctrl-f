@@ -1,111 +1,224 @@
+# utils.py
+
 import json
 import pdfplumber
+import fitz  # Import PyMuPDF
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Highlight
 from pypdf.generic import ArrayObject, FloatObject
+import os
 
-def getCoords(needle :str, pdf_path :str, page :int):
+# getCoords function is not used in the highlighting logic, keeping it as is.
+def getCoords(needle: str, pdf_path: str, page: int):
     """
-    Find all occurances of `needle` within PDF with `pdf_path`. 
+    Find all occurrences of `needle` within PDF with `pdf_path`.
     Coordinates are returned as an array.
     """
     coords = []
-
-    with pdfplumber.open(pdf_path) as pdf: 
-        words = pdf.pages[page].extract_words()
-        
-        for i, word in enumerate(words):
-            if word["text"].lower() in needle.lower():
-                coord = {
-                        "x0": float(word["x0"]),
-                        "x1": float(word["x1"]),
-                        "top": float(word["top"]),
-                        "bottom": float(word["bottom"]),
-                        }
-
-                coords.append(coord)
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            page_index = page - 1 if page is not None and page > 0 else 0
+            if 0 <= page_index < len(pdf.pages):
+                words = pdf.pages[page_index].extract_words()
+                for i, word in enumerate(words):
+                    if needle.lower() in word["text"].lower():
+                        coord = {
+                                 "x0": float(word["x0"]),
+                                 "x1": float(word["x1"]),
+                                 "top": float(word["top"]),
+                                 "bottom": float(word["bottom"]),
+                                 }
+                        coords.append(coord)
+            else:
+                print(f"Warning: Page number {page} is out of range for getCoords for {os.path.basename(pdf_path)}.")
+    except FileNotFoundError:
+        print(f"Error: PDF file not found at {pdf_path} in getCoords.")
+    except Exception as e:
+        print(f"An error occurred in getCoords for {os.path.basename(pdf_path)}: {e}")
     return coords
 
-def getMatches(pdf_path: str, matches: list, output_filename="highlighted_output.pdf", coords_filename="coordinates.json"):
+# getMatches function modified to remove JSON saving
+def getMatches(pdf_path: str, matches: list):
     """
-    Adds highlight annotations to a PDF for multiple matches.
+    Adds highlight annotations to a PDF by finding the precise location of text snippets.
 
     Args:
         pdf_path (str): The path to the input PDF file.
-        matches (list): A list of match dictionaries, each with 'page' (1-based) and 'bbox' (normalized 0-1000).
-        output_filename (str): The name for the output highlighted PDF file.
-        coords_filename (str): The name for the output JSON file with coordinates.
+        matches (list): A list of match dictionaries, each with 'page' (1-based) and 'text'.
+                        (May also contain 'filename', but that's not used for highlighting itself)
     """
+
+    # Generate output filename based on input pdf_path
+    # This will create highlight_original_filename.pdf for each processed PDF
+    output_filename = "highlight_" + os.path.basename(pdf_path)
+    # Ensure the output file has a .pdf extension
+    if not output_filename.lower().endswith(".pdf"):
+        output_filename += ".pdf"
+
+
     if not matches:
-        print("No matches provided for highlighting.")
+        print(f"No matches provided for highlighting in {os.path.basename(pdf_path)}.")
+        # Optionally create an empty output file or copy the original if no matches
+        # This part can be kept for individual file handling
+        try:
+            # Check if the output file already exists and is different from the input
+            if os.path.exists(output_filename) and os.path.abspath(output_filename) != os.path.abspath(pdf_path):
+                 print(f"Output file {output_filename} already exists for {os.path.basename(pdf_path)}. Skipping highlighting.")
+                 return # Skip if output file already exists
+
+            print(f"No matches to highlight in {os.path.basename(pdf_path)}. Creating a copy of the original PDF.")
+            with open(pdf_path, 'rb') as infile, open(output_filename, 'wb') as outfile:
+                outfile.write(infile.read())
+            print(f"Created a copy of the original PDF as {output_filename}.")
+        except FileNotFoundError:
+             print(f"Error: Original PDF file not found at {pdf_path}.")
+        except Exception as e:
+             print(f"Error copying original PDF for {os.path.basename(pdf_path)}: {e}")
         return
 
-    print(f"Attempting to highlight {len(matches)} matches in the PDF.")
+
+    print(f"Attempting to highlight {len(matches)} provided matches in {os.path.basename(pdf_path)}.")
+
+    # Variables to hold PDF objects outside the main try block for cleanup
+    reader = None
+    writer = None
+    doc = None
 
     try:
+        # Use pypdf for writing annotations
         reader = PdfReader(pdf_path)
         writer = PdfWriter()
 
+        # Use fitz (PyMuPDF) for opening and searching the PDF
+        doc = fitz.open(pdf_path)
+
         # Iterate through pages and add both the page and annotations
         for page_index in range(len(reader.pages)):
-            page_obj = reader.pages[page_index]  # Get the page object
-            writer.add_page(page_obj)  # Add the original page *first*
+            # Add the original page first to the writer
+            writer.add_page(reader.pages[page_index])
 
-            page_width = float(page_obj.mediabox.width)
-            page_height = float(page_obj.mediabox.height)
+            # Get the corresponding page from PyMuPDF (0-based index)
+            try:
+                page_fitz = doc.load_page(page_index)
+                page_width = float(page_fitz.rect.width)
+                page_height = float(page_fitz.rect.height)
+            except IndexError:
+                print(f"Warning: Could not load page {page_index + 1} with PyMuPDF for {os.path.basename(pdf_path)}. Skipping annotations.")
+                continue
+            except Exception as e:
+                 print(f"Error loading page {page_index + 1} with PyMuPDF for {os.path.basename(pdf_path)}: {e}. Skipping annotations.")
+                 continue
 
-            # Iterate through ALL provided matches and add highlights if they are on this page
+            # Initialize a list to collect all found text instances for the current page
+            page_text_instances = []
+
+            # Iterate through ALL provided matches and find their instances on THIS page
             for match in matches:
                 # Ensure the match has required keys and is on the current page
-                if isinstance(match, dict) and 'page' in match and 'bbox' in match and match['page'] == page_index + 1:
-                    bbox = match['bbox'] # [y_min, x_min, y_max, x_max] normalized 0-1000
+                if isinstance(match, dict) and 'page' in match and 'text' in match and isinstance(match['page'], (int, float)) and int(match['page']) == page_index + 1:
+                    text_to_highlight = str(match['text'])
 
-                    # Basic validation for bbox format
-                    if not (isinstance(bbox, list) and len(bbox) == 4 and all(isinstance(i, (int, float)) for i in bbox)):
-                         print(f"Skipping invalid bbox format for match on page {match['page']}: {bbox}")
+                    # Use PyMuPDF to find the precise bounding boxes of the text
+                    try:
+                         found_instances = page_fitz.search_for(text_to_highlight)
+                         page_text_instances.extend(found_instances)
+                    except Exception as e:
+                         print(f"Error during search_for for '{text_to_highlight}' on page {page_index + 1} in {os.path.basename(pdf_path)}: {e}. Skipping this match.")
+
+
+            # Now, iterate through all found instances and add highlights
+            for rect in page_text_instances:
+                try:
+                    # search_for can return Rects or Quads. We need the quad for precise highlighting.
+                    if isinstance(rect, fitz.Rect):
+                         quad_obj = rect.quad
+                    elif isinstance(rect, fitz.Quad):
+                         quad_obj = rect
+                    else:
+                         print(f"Warning: Unexpected instance type found on page {page_index + 1} in {os.path.basename(pdf_path)}: {type(rect)}. Skipping highlight.")
                          continue
 
-                    # Denormalize and convert Gemini bbox (top-left origin, Y down)
-                    # to pypdf rect (bottom-left origin, Y up)
-                    gemini_y_min, gemini_x_min, gemini_y_max, gemini_x_max = bbox
 
-                    pdf_x_min = gemini_x_min / 1000.0 * page_width
-                    pdf_x_max = gemini_x_max / 1000.0 * page_width
+                    # --- QUAD POINTS EXTRACTION and Y-Inversion ---
+                    if not isinstance(quad_obj, fitz.Quad):
+                        print(f"Warning: Processed object is not a fitz.Quad on page {page_index + 1} in {os.path.basename(pdf_path)}: {type(quad_obj)}. Skipping highlight for this instance.")
+                        continue
 
-                    # Invert Y and scale
-                    pdf_y_max = (1000 - gemini_y_min) / 1000.0 * page_height
-                    pdf_y_min = (1000 - gemini_y_max) / 1000.0 * page_height
+                    quad_values = []
+                    try:
+                        point_objects_in_tl_order = list(quad_obj)
+                        if len(point_objects_in_tl_order) == 4 and all(isinstance(p, fitz.Point) for p in point_objects_in_tl_order):
+                            bl_point = point_objects_in_tl_order[3]
+                            br_point = point_objects_in_tl_order[2]
+                            tr_point = point_objects_in_tl_order[1]
+                            tl_point = point_objects_in_tl_order[0]
 
-                    # Create the pypdf rectangle tuple
-                    rect = (pdf_x_min, pdf_y_min, pdf_x_max, pdf_y_max)
-                    # print(f"Calculated PyPDF Rect (points) for match on page {page_index + 1}: {rect}") # Optional debug print
+                            # Apply Y-Inversion
+                            quad_values = [
+                                float(bl_point.x), float(page_height - bl_point.y),
+                                float(br_point.x), float(page_height - br_point.y),
+                                float(tr_point.x), float(page_height - tr_point.y),
+                                float(tl_point.x), float(page_height - tl_point.y),
+                            ]
+                        else:
+                            print(f"Warning: fitz.Quad on page {page_index + 1} in {os.path.basename(pdf_path)} did not yield 4 Point objects as expected. Skipping highlight.")
+                            continue
 
-                    quad = ArrayObject([
-                        FloatObject(pdf_x_min), FloatObject(pdf_y_min),  # lower-left
-                        FloatObject(pdf_x_max), FloatObject(pdf_y_min),  # lower-right
-                        FloatObject(pdf_x_min), FloatObject(pdf_y_max),  # upper-left
-                        FloatObject(pdf_x_max), FloatObject(pdf_y_max)  # upper-right
-                    ])
+                    except Exception as e:
+                         print(f"Error processing fitz.Quad points on page {page_index + 1} in {os.path.basename(pdf_path)}: {e}. Skipping highlight.")
+                         continue
 
-                    annotation = Highlight(rect=rect, quad_points=quad)
-                    # Add annotation to the correct page *in the writer object* (0-based index)
+                    if len(quad_values) != 8:
+                         print(f"Warning: Did not get exactly 8 float coordinates from quad processing on page {page_index + 1} in {os.path.basename(pdf_path)}. Skipping highlight.")
+                         continue
+
+                    pdf_quad_array_object = ArrayObject([FloatObject(p) for p in quad_values])
+
+                    # Derive rect from inverted quad values
+                    xs = quad_values[0::2]
+                    ys_inverted = quad_values[1::2]
+
+                    min_x = min(xs)
+                    max_x = max(xs)
+                    min_y_inverted = min(ys_inverted)
+                    max_y_inverted = max(ys_inverted)
+
+                    pdf_rect_tuple = (min_x, min_y_inverted, max_x, max_y_inverted)
+
+                    # Create highlight annotation
+                    annotation = Highlight(rect=pdf_rect_tuple, quad_points=pdf_quad_array_object)
+
+                    # Add annotation to the page
                     writer.add_annotation(page_index, annotation)
-                    # print(f"Added highlight for match on page {page_index + 1}") # Optional debug print
+
+                except Exception as e:
+                    print(f"Error adding highlight annotation for an instance on page {page_index + 1} in {os.path.basename(pdf_path)}: {e}")
+
+        # Write out a new PDF with all highlights for THIS file
+        # Check if the output directory exists, create if not
+        output_dir = os.path.dirname(output_filename)
+        if output_dir and not os.path.exists(output_dir):
+            try:
+                os.makedirs(output_dir)
+            except OSError as e:
+                print(f"Error creating output directory {output_dir}: {e}. Saving output PDF to current directory.")
+                output_filename = os.path.basename(output_filename) # Save to current directory
 
 
-        # Write out a new PDF with all highlights
         with open(output_filename, "wb") as out_f:
             writer.write(out_f)
         print(f"Successfully created {output_filename} with all highlights.")
 
-        # Save coordinates of all processed matches to a JSON file
-        # It's better to save the original matches list as provided
-        with open(coords_filename, "w") as outfile:
-            json.dump(matches, outfile, indent=4)
-        print(f"Saved coordinates of all matches to {coords_filename}.")
+        # --- Removed JSON saving from here ---
+        # The overall JSON saving is handled in main.py now
 
 
     except FileNotFoundError:
-        print(f"Error: The PDF file {pdf_path} was not found during the highlighting process.")
+        print(f"Error: The PDF file {pdf_path} was not found during highlighting setup.")
     except Exception as e:
-        print(f"An error occurred during PDF highlighting: {e}")
+        print(f"An unexpected error occurred during PDF highlighting setup for {os.path.basename(pdf_path)}: {e}")
+
+    finally:
+        if doc:
+            doc.close()
+        # No need to close reader/writer explicitly, 'with open' handles file handles.
