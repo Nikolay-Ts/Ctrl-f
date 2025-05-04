@@ -233,8 +233,6 @@ async function submitVideo() {
             body: formData
         });
 
-        const responseText = await response.json();
-
         if (!response.ok) {
             window.alert("Did not get 200");
             return;
