@@ -228,17 +228,13 @@ async function submitVideo() {
     formData.append("video", url);
 
     try {
-        const response = await fetch("http://34.141.67.42:3000/submit-video", {
+        const response = await fetch("http://34.141.67.42:3000/submit", {
             method: "POST",
             body: formData
         });
 
-        console.log(`Response Code: ${response.status}`);
-        const responseText = await response.text();
-        console.log(`Response Body: ${responseText}`);
-
         if (!response.ok) {
-            window.alert("Error with the server");
+            window.alert("Did not get 200");
             return;
         }
 
@@ -249,7 +245,8 @@ async function submitVideo() {
             return;
         }
 
-        sessionStorage.setItem("annotatedVideo", JSON.stringify(data));
+        sessionStorage.setItem("videoNotes", JSON.stringify(data));
+        window.location.href = "/src/video-page/video-page.html"
     } catch (error) {
         console.error(error);
         window.alert("Error with the server");
