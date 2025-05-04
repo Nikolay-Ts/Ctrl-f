@@ -210,12 +210,15 @@ function validateYouTubeLink() {
 function validateVideoPrompt() {
     const prompt = document.getElementById('videoPromptInput').value.trim();
     const promptGuard = document.querySelector('#videoSection #promptGuard');
+    const promptGuardpdf = document.querySelector('#pdfSection #promptGuard');
 
     if (!prompt) {
         promptGuard.classList.remove('d-none');
+        promptGuardpdf.classList.remove('d-none');
         return false;
     } else {
         promptGuard.classList.add('d-none');
+        promptGuardpdf.classList.remove('d-none');
         return true;
     }
 }
