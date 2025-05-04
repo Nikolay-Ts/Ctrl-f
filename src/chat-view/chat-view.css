@@ -1,5 +1,12 @@
-/* Base theme */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
 body {
+  display: flex;
+  flex-direction: column;
   background-image: url('../assets/Background.png');
   background-repeat: repeat;
   background-size: auto;
@@ -8,24 +15,54 @@ body {
   color: #111;
 }
 
-/* Navbar */
+.navbar-brand,
+.navbar-nav .nav-link {
+  color: #111 !important;
+}
+
+/* Glassy navbar blur */
 .nav-blur {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 1030;
 }
-.navbar-brand img,
-.navbar-nav .nav-link {
-  color: #111 !important;
-}
+
 .nav-lg-link {
   font-size: 1.15rem;
   font-weight: 500;
-  padding: 8px 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
-/* Glass card wrapper */
+.container-fluid {
+  flex: 1 1 auto;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+.row.g-0 {
+  flex: 1 1 auto;
+  display: flex;
+  width: 100%;
+}
+
+.col-md-8 {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.col-md-4 {
+  flex: 0 0 33.3333%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
 .ultra-card {
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -33,43 +70,44 @@ body {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(10px);
   color: #111;
-}
-
-/* Chat area */
-.chat-container {
-  flex-grow: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+}
+
+.chat-container {
+  height: calc(100vh - 140px - 2.05rem);
+  overflow-y: auto;       
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
   padding-bottom: 0.5rem;
 }
 
-/* Chat bubbles – glass theme */
 .chat-bubble {
-  background: rgba(255, 255, 255, 0.5);  /* same glassiness as .ultra-card */
-  color: #111;                            /* dark text on light glass */
+  background: rgba(255, 255, 255, 0.5);
+  color: #111;
   border-radius: 12px;
   padding: 0.75rem 1rem;
   max-width: 75%;
-  align-self: flex-end;
   backdrop-filter: blur(5px);
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+.chat-bubble.user {
+  align-self: flex-end;
+}
 .chat-bubble.bot {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.5);
-  color: #111;
 }
 
-/* Input bar */
 .chat-input-bar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding-top: 0.5rem;
 }
+
 .chat-input-bar textarea {
   flex-grow: 1;
   resize: none;
@@ -80,10 +118,12 @@ body {
   font-size: 1rem;
   font-family: inherit;
 }
+
 .chat-input-bar textarea:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
+
 .chat-input-bar button {
   background: none;
   border: none;
@@ -91,22 +131,56 @@ body {
   cursor: pointer;
   color: #111;
 }
+
 .chat-input-bar button:hover {
   color: #000;
 }
 
-/* PDF pane */
 .pdf-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
   position: relative;
-  height: calc(100vh - 100px - 2rem);
-  overflow: hidden;
 }
+
 canvas {
   display: block;
   width: 100%;
   height: auto;
 }
+
 .highlight {
   position: absolute;
   background-color: rgba(255, 0, 0, 0.4);
+}
+
+.chat-container,
+.pdf-container {
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-container,
+.pdf-container {
+  overscroll-behavior: contain;
+}
+
+.ultra-card.pdf-container {
+  display: block;
+  height: auto;
+}
+
+.pdf-container {
+  height: calc(100vh - 100px - 2rem);
+  overflow-y: auto; 
+  position: relative;
+  -webkit-overflow-scrolling: touch;  
+  overscroll-behavior: contain;    
+}
+
+.pdf-container canvas {
+  flex-shrink: 0;    
+}
+
+.chat-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
 }
