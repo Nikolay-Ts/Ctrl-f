@@ -103,7 +103,7 @@
       return;
     }
 
-    const hashmap = JSON.Parse(url);
+    const hashmap = JSON.parse(url);
       for (var file in hashmap) {
           if (file.includes(".pdf")) {
               const byteCharacters = atob(hashmap[file]);
