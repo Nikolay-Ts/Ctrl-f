@@ -11,7 +11,7 @@
   />
   <link rel="stylesheet" href="chat-view.css" />
 </head>
-<body>
+<body class="d-flex flex-column" style="height:100vh; margin:0">
   <!-- Navbar (same as before) -->
   <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
@@ -35,10 +35,10 @@
   </nav>
 
   <!-- Main -->
-  <div class="container-fluid">
-    <div class="row g-0">
+  <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
+    <div class="row g-0 flex-grow-1">
       <!-- Chat Column -->
-      <div class="col-md-8 p-3 d-flex flex-column">
+      <div class="col-md-8 p-3 d-flex flex-column" style="min-height:0">
         <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
         <div class="chat-input-bar">
           <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
