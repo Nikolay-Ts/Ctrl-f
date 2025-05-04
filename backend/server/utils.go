@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strconv"
 )
 
 // SaveFile saves a file into DIRECTORY.
@@ -39,4 +40,20 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
 		"./lib/files/main.py", 
 		prompt, 
 		directory).Output()
+}
+
+// ExecVideo runs the python program to retrieve the timestamp where NEEDLE is mentioned
+// from the LINK.
+func ExecVideo(needle, link string) (int, error) {
+	out, err := exec.Command(
+		"./lib/venv/bin/python3", 
+		"./lib/video/main.py", 
+		needle, 
+		link).Output()
+
+	if err != nil {
+		return -1, err
+	}
+
+	return strconv.Atoi(string(out))
 }
