@@ -270,14 +270,15 @@ async function submitVideo() {
             return;
         }
 
-        const data = await response.json();
+        const data = await response.text();
 
         if (!data) {
             window.alert("The data seems to be empty");
             return;
         }
 
-        sessionStorage.setItem("videoNotes", JSON.stringify(data));
+        sessionStorage.setItem("timestamp", data);
+        sessionStorage.setItem("url", url);
         window.location.href = "/src/video-page/video-page.html"
     } catch (error) {
         hideLoader();
