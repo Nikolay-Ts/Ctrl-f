@@ -17,17 +17,6 @@ os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
 client = genai.Client(api_key=os.environ["API_KEY"])
 
 
-value = sys.argv[1]
-directory = sys.argv[2]
-
-matches = []
-
-for f in os.listdir(directory):
-    file = os.path.join(directory, f)
-    if os.path.isfile(file):
-        matches.append(analyzePdf(value, file))
-
-print(json.dumps(matches))
 
 def analyzePdf(value, pdf_path):
     with open(pdf_path, 'rb') as pdf_file:
@@ -168,3 +157,16 @@ def analyzePdf(value, pdf_path):
 
     if all_matches:
         return all_matches
+
+if __name__ == "__main__":
+    value = sys.argv[1]
+    directory = sys.argv[2]
+
+    matches = []
+
+    for f in os.listdir(directory):
+        file = os.path.join(directory, f)
+        if os.path.isfile(file):
+            matches.append(analyzePdf(value, file))
+
+    print(json.dumps(matches))
