@@ -38,7 +38,7 @@ func SaveFile(f *multipart.FileHeader, directory string) error {
 // ExecFiles runs the python program to extract information on the PROMPT
 // based on information in the files in DIRECTORY.
 func ExecFiles(prompt, directory string) ([]byte, error) {
-	res, err := exec.Command(
+	_, err := exec.Command(
 		"./lib/venv/bin/python3", 
 		"./lib/files/main.py", 
 		prompt, 
