@@ -8,6 +8,7 @@
           "properties": {
             "text": {"type": "string"},
             "page": {"type": "integer"},
+            "filename": {"type": "string"},
             "bbox": {
               "type": "array",
               "items": {"type": "integer"},
