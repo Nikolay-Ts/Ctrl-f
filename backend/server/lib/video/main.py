@@ -82,6 +82,7 @@ if __name__ == "__main__":
     video_path = download_video(sys.argv[2])
     audio_path = convert_to_mp3(video_path)
     response = run(sys.argv[1], audio_path)
+    print("---DONE---")
     print(response)
     os.unlink(video_path)
     os.unlink(audio_path)

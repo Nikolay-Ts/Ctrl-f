@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -66,7 +67,19 @@ func main() {
 			out, err = ExecVideo(user_request.Prompt, user_request.Video)
 			if err != nil {
 				http.Error(w, "Error: AI could not parse query!", http.StatusInternalServerError)
-				log.Println(err.Error())
+				log.Println( "Error: AI could not parse query!")
+				return
+			}
+
+			delimiter := "---DONE---"
+			input := string(out)
+
+			if idx := strings.Index(input, delimiter); idx != -1 {
+				result := input[idx+len(delimiter):]
+				out = []byte(result)
+			} else {
+				http.Error(w, "Error: AI could not parse query!", http.StatusInternalServerError)
+				log.Println( "Error: AI could not parse query!")
 				return
 			}
 		}
