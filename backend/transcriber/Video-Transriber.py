@@ -1,5 +1,5 @@
 import yt_dlp
-import google.generativeai as genai
+from google import genai
 from google.genai import types
 from moviepy import VideoFileClip
 import os
