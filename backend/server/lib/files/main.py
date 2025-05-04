@@ -11,9 +11,6 @@ from pypdf.generic import ArrayObject, FloatObject
 from google.genai import types
 
 
-# Set your API key
-os.environ["API_KEY"] = 'AIzaSyDGyO1GFfxydCDvx0AFPbmOlR6-fABQV44'
-
 client = genai.Client(api_key=os.environ["API_KEY"])
 
 
