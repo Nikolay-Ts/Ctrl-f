@@ -123,15 +123,13 @@ async function SubmitPdf() {
         fileUploadError.classList.add('d-none');
 
         const prompt = promptInput.value.trim();
-
         const formData = new FormData();
+
         for (let i = 0; i < uploadedFiles.length; i++) {
             formData.append('pdfs', uploadedFiles[i]);
         }
 
-        formData.append("prompt", prompt)
-
-        console.log(formData); //TODO: Remove in prod
+        formData.append("prompt", prompt);
 
         try {
             const response = await fetch("http://34.141.67.42:3000/submit", {
@@ -139,16 +137,14 @@ async function SubmitPdf() {
                 body: formData
             });
 
-            console.log(`Response Code: ${response.status}`);
-            const responseText = await response.text();
-            console.log(`Response Body: ${responseText}`);
 
-            if (!response.ok) {
-                window.alert("Error with the server");
+            if (response.status !== 200) {
+                window.alert("Error with the server (not 200)");
                 return;
             }
 
-            const data = await response.json();
+            const data = await response.text(); //TODO: Change this be back to a JSON
+            console.log("Response JSON:", data);
 
             if (!data) {
                 window.alert("The data seems to be empty");
@@ -160,7 +156,6 @@ async function SubmitPdf() {
             console.error(error);
             window.alert("Error with the server");
         }
-
     } else {
         fileUploadError.classList.remove('d-none');
     }
