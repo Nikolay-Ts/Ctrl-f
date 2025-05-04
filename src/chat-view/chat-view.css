@@ -1,4 +1,4 @@
-/* Match landing/about body */
+/* Base theme */
 body {
   background-image: url('../assets/Background.png');
   background-repeat: repeat;
@@ -6,50 +6,26 @@ body {
   background-color: #f8f8f8;
   font-family: 'Segoe UI', sans-serif;
   color: #111;
-  opacity: 1;
 }
 
-.navbar-brand,
-.navbar-nav .nav-link {
-  color: #111 !important;
-}
-
-
+/* Navbar */
 .nav-blur {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 1030;
 }
-
-
+.navbar-brand img,
+.navbar-nav .nav-link {
+  color: #111 !important;
+}
 .nav-lg-link {
   font-size: 1.15rem;
   font-weight: 500;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 8px 0;
 }
 
-.chat-container {
-  background: transparent;
-  padding: 1rem;
-  height: calc(100vh - 100px);
-  overflow-y: auto;
-}
-
-.chat-bubble {
-  background: rgba(255, 255, 255, 0.5);
-  color: #111;
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.75rem;
-  max-width: 75%;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* Glass card wrapper */
 .ultra-card {
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -59,46 +35,78 @@ body {
   color: #111;
 }
 
+/* Chat area */
+.chat-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Chat bubbles – glass theme */
+.chat-bubble {
+  background: rgba(255, 255, 255, 0.5);  /* same glassiness as .ultra-card */
+  color: #111;                            /* dark text on light glass */
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  max-width: 75%;
+  align-self: flex-end;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.chat-bubble.bot {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.5);
+  color: #111;
+}
+
+/* Input bar */
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+.chat-input-bar textarea {
+  flex-grow: 1;
+  resize: none;
+  border: none;
+  border-radius: 20px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  font-family: inherit;
+}
+.chat-input-bar textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+.chat-input-bar button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #111;
+}
+.chat-input-bar button:hover {
+  color: #000;
+}
+
+/* PDF pane */
 .pdf-container {
   position: relative;
-  height: calc(100vh - 100px);
-  /* Adjust as needed for navbar */
+  height: calc(100vh - 100px - 2rem);
   overflow: hidden;
 }
-
-.pdf-wrapper {
-  position: relative;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-.page-container {
-  position: relative;
-  margin-bottom: 2rem;
-}
-
 canvas {
   display: block;
   width: 100%;
   height: auto;
-  background-color: white;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
-
-.highlight-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 10;
-}
-
 .highlight {
   position: absolute;
   background-color: rgba(255, 0, 0, 0.4);
-  transition: all 0.3s ease;
 }
