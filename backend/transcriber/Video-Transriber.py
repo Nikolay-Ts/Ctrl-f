@@ -50,7 +50,7 @@ def run(topic, audio):
 
 
 
-    tool = types.Tool(function_declarations=[search_documents])
+    tool = types.Tool(function_declarations=[get_document])
 
     generation_config = types.GenerateContentConfig(
         temperature=0,
