@@ -128,6 +128,13 @@ cancelBtn.addEventListener('click', () => {
     updateFilePreview();
 });
 
+function showLoader() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoader() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
 /**
  * Sends uploaded PDF files to the backend for annotation.
  * Saves the response JSON to sessionStorage under 'annotatedPdfs'.
@@ -147,6 +154,8 @@ async function SubmitPdf() {
         }
 
         formData.append("prompt", prompt);
+
+        showLoader();
 
         try {
             const response = await fetch("http://34.141.67.42:3000/submit", {
@@ -175,6 +184,7 @@ async function SubmitPdf() {
             window.alert("Error with the server");
         }
     } else {
+        hideLoader();
         fileUploadError.classList.remove('d-none');
     }
 }
@@ -247,6 +257,8 @@ async function submitVideo() {
     formData.append("prompt", prompt);
     formData.append("video", url);
 
+    showLoader();
+
     try {
         const response = await fetch("http://34.141.67.42:3000/submit", {
             method: "POST",
@@ -268,6 +280,7 @@ async function submitVideo() {
         sessionStorage.setItem("videoNotes", JSON.stringify(data));
         window.location.href = "/src/video-page/video-page.html"
     } catch (error) {
+        hideLoader();
         console.error(error);
         window.alert("Error with the server");
     }
