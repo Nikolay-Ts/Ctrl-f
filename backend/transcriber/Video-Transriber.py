@@ -1,5 +1,6 @@
 import yt_dlp
 import google.generativeai as genai
+from google.genai import types
 from moviepy import VideoFileClip
 import os
 import whisper
@@ -29,7 +30,7 @@ def convert_to_mp3(video_file, audio_file="lecture.mp3"):
 
 # Use 'large' for most accurate results (can switch to 'medium' for speed)
 
-def run(audio):
+def run(topic, audio):
     whisper_model = whisper.load_model("base")
     warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -57,13 +58,13 @@ def run(audio):
 
     client = genai.Client(api_key=os.environ["API_KEY"])
 
-    question = "can you give me a gist of what happens in each minute of the video"
+    prompt = "What is the timestamp in which the topic '" + topic + "' is discussed?"
 
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=[
             transcript,
-            question
+            prompt
         ],
         config=generation_config
     )
@@ -73,9 +74,9 @@ def run(audio):
 
 
 if __name__ == "__main__":
-    video_path = download_video("https://youtu.be/0EKpDQBmtgw")
+    video_path = download_video(sys.argv[2])
     audio_path = convert_to_mp3(video_path)
-    response = run(audio_path)
+    response = run(argv[1], audio_path)
     print(response.text)
     os.unlink(video_path)
     os.unlink(audio_path)
