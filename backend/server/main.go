@@ -55,7 +55,7 @@ func main() {
 		}
 
 		out, err := exec.Command(
-			"python3", 
+			"./lib/venv/bin/python3", 
 			"./lib/files/main.py", 
 			user_request.Prompt, 
 			dir.Path).Output()
