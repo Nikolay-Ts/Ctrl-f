@@ -35,15 +35,10 @@ type UniqueDir struct {
 
 // UniqueDir.New creates a uniquely named directory.
 func (dir *UniqueDir) New() error {
-	err := os.Mkdir("data", 0770)
-	if err != nil && !os.IsExist(err) {
-		return err
-	}
-
 	uuid := fmt.Sprintf("%d-%d", time.Now().UnixNano(), rand.Int())
 	dir.Path = filepath.Join("data", uuid)
 
-	err = os.Mkdir(dir.Path, 0770)
+	err := os.MkdirAll(dir.Path, 0770)
 	if err != nil {
 		return err
 	}

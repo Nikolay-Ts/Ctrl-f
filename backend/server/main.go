@@ -41,7 +41,6 @@ func main() {
 			log.Println(err.Error())
 			return
 		}
-		defer dir.Clean()
 
 		for _, fileHeader := range user_request.Files {
 			err := SaveFile(fileHeader, dir.Path)
