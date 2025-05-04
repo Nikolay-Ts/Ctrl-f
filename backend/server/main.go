@@ -51,6 +51,7 @@ func main() {
 		}
 
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
 		return
 	})
 
