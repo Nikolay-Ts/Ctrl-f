@@ -1,32 +1,71 @@
 # Ctrl-f
 
-------
+An open-source, file-driven AI parser that lets you semantically search and highlight content inside PDFs and videos—instantly and accurately.
 
-## Contributors
+---
 
-- [Rumen](https://www.linkedin.com/in/rumen-mitov) Backend Lead
-- [Bilal](www.linkedin.com/in/bilal-waraich-723878296) Whisper Lead
-- [Felipe](www.linkedin.com/in/bilal-waraich-723878296) VLLM Lead
-- [Nik](www.linkedin.com/in/nikolay-tsonev-a8a498226) Whisper & VLLM optimisation 
+## 🚀 Contributors
 
-## Purpose 
+- **Rumen Mitov** — Backend Lead  
+  <https://www.linkedin.com/in/rumen-mitov>  
+- **Bilal Waraich** — Whisper & Video‐STS Lead  
+  <https://www.linkedin.com/in/bilal-waraich-723878296>  
+- **Felipe Ribadeneira** — VLLM & Prompt Engineering Lead  
+  <https://www.linkedin.com/in/felipe-ribadeneira>  
+- **Nikolay Tsonev** — Performance & Optimization Lead  
+  <https://www.linkedin.com/in/nikolay-tsonev-a8a498226>  
 
-The purpose of this project is to expand the avialablity of information coming from LLMs. The current
-issue is that too many LLMs provide not enough citations or nontrsutworthy sources for their claims. 
-Another issue is the lack of transaperncy with current LLMs as you never know exactly where they get
-their information, unlike research papers.
+---
 
-Ctrl-f aims at improving this by providing a tool that lets you get the golden nuggets of information
-without having to waste counltes hours reading throuhg pappers to just find out that it did not have the 
-specific information you are looking for. Because we live in the 21st century and we are students, we know how important it is to have the same too for Youtube. We have the `transcribe` function that allows you to ask anything about the video and 
-it will show where it is in the video if it exists.
+## 🎯 Purpose
 
-## Why?
+**Ctrl-f** bridges the gap between powerful LLMs and real-world documents/videos. Conventional LLMs often:
 
-Felipe Ribadeneira: The project is divided into two main components: frontend and backend. The frontend is developed using HTML, CSS, and JavaScript, and it communicates with the backend via structured JSON over HTTP. The backend is modular, with separate components handling each core feature. For deployment and server-side orchestration, we used Golang as the backbone of the backend, hosted on Google Cloud for scalability and reliability. For the PDF localization and highlighting feature, we utilized the Gemini 2.0-Flash model in combination with PyMuPDF and pdfplumber to identify and extract relevant content from PDF files. All inter-process communication between tools and services was done using well-structured JSON, ensuring consistency and traceability of the data. Prompt engineering was a key aspect of our approach. We created specialized function-based tools that were passed to Gemini to enforce structure and consistency in the model's outputs. Additionally, tailored prompts were designed to refine responses further and extract exactly the information needed to render highlights in the PDF via the frontend. For the video feature, we implemented a pipeline that downloads videos from YouTube on the server and extracts the audio track for performance optimization. We then use OpenAI’s Whisper model to transcribe the audio and generate accurate timestamps. Gemini 2.0-Flash processes the transcription and returns specific timestamps (in seconds) relevant to the user's query. These timestamps are sent to the frontend, which uses them to embed and auto-seek YouTube videos via iframe, directly pointing users to the relevant segments.
-[04/05/2025, 12:39:24] Felipe Ribadeneira: how
+1. Provide unverifiable outputs with poor citation.  
+2. Struggle to pinpoint within large, image-rich PDFs or long videos.  
 
+Ctrl-f solves this by combining:  
+- **Semantic search** via Google Gemini 2.0-Flash  
+- **Precise text-layer location** with PyMuPDF & pdfplumber  
+- **Video transcript indexing** using OpenAI Whisper  
 
-## How?
+End result: Get “golden nuggets” of information—complete with page numbers or timestamps—without wading through hundreds of pages or minutes of footage.
 
- Felipe Ribadeneira: The project is divided into two main components: frontend and backend. The frontend is developed using HTML, CSS, and JavaScript, and it communicates with the backend via structured JSON over HTTP. The backend is modular, with separate components handling each core feature. For deployment and server-side orchestration, we used Golang as the backbone of the backend, hosted on Google Cloud for scalability and reliability. For the PDF localization and highlighting feature, we utilized the Gemini 2.0-Flash model in combination with PyMuPDF and pdfplumber to identify and extract relevant content from PDF files. All inter-process communication between tools and services was done using well-structured JSON, ensuring consistency and traceability of the data. Prompt engineering was a key aspect of our approach. We created specialized function-based tools that were passed to Gemini to enforce structure and consistency in the model's outputs. Additionally, tailored prompts were designed to refine responses further and extract exactly the information needed to render highlights in the PDF via the frontend. For the video feature, we implemented a pipeline that downloads videos from YouTube on the server and extracts the audio track for performance optimization. We then use OpenAI’s Whisper model to transcribe the audio and generate accurate timestamps. Gemini 2.0-Flash processes the transcription and returns specific timestamps (in seconds) relevant to the user's query. These timestamps are sent to the frontend, which uses them to embed and auto-seek YouTube videos via iframe, directly pointing users to the relevant segments.
+---
+
+## 🛠️ Architecture
+
+### Frontend  
+- **Tech stack:** HTML, CSS, JavaScript  
+- **Communication:** JSON over REST APIs  
+
+### Backend  
+- **Core language:** Go (hosted on Google Cloud for auto-scaling)  
+- **AI & parsing tools:**  
+  - Google Gemini 2.0-Flash for semantic understanding  
+  - PyMuPDF & pdfplumber for PDF text extraction  
+  - OpenAI Whisper for audio transcription  
+- **Data flow:**  
+  1. **User query** → Gemini → returns relevant text or timestamps  
+  2. **PDF path/words** → PyMuPDF/pdfplumber locate exact coords → highlight  
+  3. **Video URL** → download & strip audio → Whisper transcribes → timestamps from Gemini → frontend auto-seek  
+
+All interactions between components use well-structured JSON “contracts” to ensure consistency and debuggability.
+
+---
+
+## 🔧 Why Ctrl-f Is Unique
+
+- **Hybrid AI pipeline:** Leverages both LLMs and traditional parsers for accuracy.  
+- **Open source:** No paywalls—anyone can host or extend the tool.  
+- **Multimedia support:** Works seamlessly on text (PDF) and audio/video.  
+- **Citation-ready:** Outputs contextual snippets with precise locations, eliminating guesswork and plagiarism risk.
+
+---
+
+## ⚙️ Installation & Quick Start
+
+1. **Clone the repo**  
+   ```bash
+   git clone https://github.com/your-org/ctrl-f.git
+   cd ctrl-f
