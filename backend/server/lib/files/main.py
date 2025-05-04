@@ -150,11 +150,7 @@ if __name__ == "__main__":
 
     value = sys.argv[1]
     directory = sys.argv[2]
-<<<<<<< HEAD
-    output_json_filename = os.path.join(directory, "all_matches_coords.json")
-=======
     output_json_filename = "all_matches_coords.json" 
->>>>>>> 2bfa799 (cleaning files and refactoring code for error handling)
 
     all_collected_matches = [] 
 
@@ -184,10 +180,6 @@ if __name__ == "__main__":
         except Exception as e:
             exit(1)
     else:
-<<<<<<< HEAD
         print("\nNo matches were found across all processed documents.")
 
     print("--- Finished batch processing script ---")
-=======
-        exit(1)
->>>>>>> 2bfa799 (cleaning files and refactoring code for error handling)

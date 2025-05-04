@@ -6,29 +6,42 @@ from pypdf.annotations import Highlight
 from pypdf.generic import ArrayObject, FloatObject
 import os
 
-def getCoords(needle :str, pdf_path :str, page :int):
+def getCoords(needle: str, pdf_path: str, page: int):
     """
-    Find all occurances of `needle` within PDF with `pdf_path`. 
+    Find all occurrences of `needle` within PDF with `pdf_path`.
     Coordinates are returned as an array.
+    (This function is kept but not used in the getMatches highlighting logic)
     """
     coords = []
 
-    with pdfplumber.open(pdf_path) as pdf: 
-        words = pdf.pages[page].extract_words()
-        
-        for i, word in enumerate(words):
-            if word["text"].lower() in needle.lower():
-                coord = {
-                        "x0": float(word["x0"]),
-                        "x1": float(word["x1"]),
-                        "top": float(word["top"]),
-                        "bottom": float(word["bottom"]),
-                        }
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            page_index = page - 1 if page is not None and page > 0 else 0
+            if 0 <= page_index < len(pdf.pages):
+                words = pdf.pages[page_index].extract_words()
 
-                coords.append(coord)
+                for i, word in enumerate(words):
+                    if needle.lower() in word["text"].lower():
+                        coord = {
+                                 "x0": float(word["x0"]),
+                                 "x1": float(word["x1"]),
+                                 "top": float(word["top"]),
+                                 "bottom": float(word["bottom"]),
+                                 }
+
+                        coords.append(coord)
+            else:
+                print(f"Warning: Page number {page} is out of range for getCoords.")
+    except FileNotFoundError:
+        print(f"Error: PDF file not found at {pdf_path} in getCoords.")
+    except Exception as e:
+        print(f"An error occurred in getCoords: {e}")
+
+
     return coords
 
-def getMatches(pdf_path: str, matches: list):
+
+def getMatches(pdf_path: str, matches: list, output_filename="highlighted_output.pdf", coords_filename="highlighted_coords.json"):
     """
     Adds highlight annotations to a PDF by finding the precise location of text snippets.
 
@@ -39,10 +52,6 @@ def getMatches(pdf_path: str, matches: list):
         output_filename (str): The name for the output highlighted PDF file.
         coords_filename (str): The name for the output JSON file with coordinates (saving the input matches for reference).
     """
-
-    output_filename = "highlight_" + os.path.basename(pdf_path) + ".pdf"
-    coords_filename = "coords_" + os.path.basename(pdf_path) + ".json"
-
     if not matches:
         print("No matches provided for highlighting.")
         # Optionally create an empty output file or copy the original if no matches
