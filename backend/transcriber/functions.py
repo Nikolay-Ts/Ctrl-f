@@ -1,7 +1,7 @@
 import json
 from google.genai.types import FunctionDeclaration
 
-with open(r"response_schema.json", "r") as f:
+with open(r"video_schema.json", "r") as f:
     response_schema = json.load(f)
 
 get_timestamp = FunctionDeclaration(

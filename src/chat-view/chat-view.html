@@ -97,38 +97,52 @@
     }
 
     // 1) Retrieve PDF URL from sessionStorage
-    const url = sessionStorage.getItem('pdfUrl');
+    const url = sessionStorage.getItem('annotatedPdfs');
     if (!url) {
       console.error('No pdfUrl found in sessionStorage');
       return;
     }
 
-    const container = document.getElementById('pdfContainer');
-    let pdfDoc = null;
-    const pageViewports = {};
+    const hashmap = json.Parse(url);
+      for (var file in hashmap) {
+          if (file.includes(".pdf")) {
+              const byteCharacters = atob(hashmap[file]);
+              const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+              const byteArray = new Uint8Array(byteNumbers);
+              const pdfurl = URL.createObjectURL(new Blob([byteArray], { type: "application/pdf" }))
+              const container = document.getElementById('pdfContainer').src = pdfurl;
+          }
 
-    // 2) Load and render all pages
-    pdfjsLib.getDocument(url).promise
-      .then(pdf => {
-        pdfDoc = pdf;
-        return (async () => {
-          for (let i = 1; i <= pdfDoc.numPages; i++) {
-            await renderPage(i);
-          }
-        })();
-      })
-      .then(() => {
-        // Wire up sidebar click events
-        document.getElementById('hitSidebar').addEventListener('click', e => {
-          if (e.target.matches('.hit-item')) {
-            const m = JSON.parse(e.target.dataset.match);
-            highlightBoxByCoords(m.page, m.x1, m.x2, m.y1, m.y2);
-            document.getElementById(`pageContainer${m.page}`)
-                    .scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      })
-      .catch(console.error);
+          break
+      }
+
+
+    <!-- const container = document.getElementById('pdfContainer'); -->
+    <!-- let pdfDoc = null; -->
+    <!-- const pageViewports = {}; -->
+    <!---->
+    <!-- // 2) Load and render all pages -->
+    <!-- pdfjsLib.getDocument(url).promise -->
+    <!--   .then(pdf => { -->
+    <!--     pdfDoc = pdf; -->
+    <!--     return (async () => { -->
+    <!--       for (let i = 1; i <= pdfDoc.numPages; i++) { -->
+    <!--         await renderPage(i); -->
+    <!--       } -->
+    <!--     })(); -->
+    <!--   }) -->
+    <!--   .then(() => { -->
+    <!--     // Wire up sidebar click events -->
+    <!--     document.getElementById('hitSidebar').addEventListener('click', e => { -->
+    <!--       if (e.target.matches('.hit-item')) { -->
+    <!--         const m = JSON.parse(e.target.dataset.match); -->
+    <!--         highlightBoxByCoords(m.page, m.x1, m.x2, m.y1, m.y2); -->
+    <!--         document.getElementById(`pageContainer${m.page}`) -->
+    <!--                 .scrollIntoView({ behavior: 'smooth' }); -->
+    <!--       } -->
+    <!--     }); -->
+    <!--   }) -->
+    <!--   .catch(console.error); -->
 
     // 3) Render a single page, fitting its width to the container
     async function renderPage(pageNum) {
