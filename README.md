@@ -75,4 +75,4 @@ All interactions between components use well-structured JSON “contracts” to 
 3. If for whatever reason the server or frontend does not work the two main features work as such;
 
 - To run the pdf parser and finder using AI run python main.py in the directory Backend/server/lib/files/main.py and give it an input as such; python main.py [argument] "directory_pdf_path"
-- To run the video feature run main.py in the directory Backend/server/lib/video/main.py python main.py [argument] "youtube link"
+- To run the video feature run main.py in the directory Backend/server/lib/video/main.py and give it an input as such; python main.py [argument] "youtube link"
