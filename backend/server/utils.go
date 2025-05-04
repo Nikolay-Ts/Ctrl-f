@@ -4,6 +4,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"os/exec"
 	"path"
 )
 
@@ -28,4 +29,14 @@ func SaveFile(f *multipart.FileHeader, directory string) error {
 	}
 
 	return nil
+}
+
+// ExecFiles runs the python program to extract information on the PROMPT
+// based on information in the files in DIRECTORY.
+func ExecFiles(prompt, directory string) ([]byte, error) {
+	return exec.Command(
+		"./lib/venv/bin/python3", 
+		"./lib/files/main.py", 
+		prompt, 
+		directory).Output()
 }

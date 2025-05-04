@@ -54,11 +54,18 @@ func main() {
 			}
 		}
 
-		out, err := exec.Command(
-			"./lib/venv/bin/python3", 
-			"./lib/files/main.py", 
-			user_request.Prompt, 
-			dir.Path).Output()
+		var out []byte
+
+		if user_request.Files != nil {
+			out, err = ExecFiles(user_request.Prompt, dir.Path)
+			if err != nil {
+				http.Error(w, "Error: AI could not parse query!", http.StatusInternalServerError)
+				log.Println(err.Error())
+				return
+			}
+		} else if user_request.Video != "" {
+		}
+
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

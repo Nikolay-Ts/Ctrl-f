@@ -33,7 +33,7 @@ def analyzePdf(value, pdf_path):
         tools=[tool],
     )
 
-    prompt = prompt = f"Find the element in this document that is most similar to {value}, whether it is text or an image, and provide its page number and bounding box."
+    prompt = f"Find the element in this document that is most similar to {value}, whether it is text or an image, and provide its page number and bounding box."
 
     response = client.models.generate_content(
         model="gemini-2.0-flash",
