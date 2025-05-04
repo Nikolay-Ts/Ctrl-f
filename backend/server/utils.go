@@ -66,6 +66,7 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
         }
 
         encoded := base64.StdEncoding.EncodeToString(data)
+		log.Println(encoded)
         filesMap[entry.Name()] = encoded
     }
 
