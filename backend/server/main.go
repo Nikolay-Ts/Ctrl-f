@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
 	"time"
 )
 
@@ -42,16 +43,31 @@ func main() {
 			return
 		}
 
+		defer dir.Clean()
+
 		for _, fileHeader := range user_request.Files {
 			err := SaveFile(fileHeader, dir.Path)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Println(err.Error())
+				return
 			}
 		}
 
+		out, err := exec.Command(
+			"python3", 
+			"./lib/files/main.py", 
+			user_request.Prompt, 
+			dir.Path).Output()
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err.Error())
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		w.Write([]byte(out))
 		return
 	})
 
