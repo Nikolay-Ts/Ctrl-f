@@ -81,121 +81,163 @@
 
       <!-- PDF Column -->
       <div class="col-md-4 p-3">
-        <div id="pdfContainer" class="ultra-card p-3 shadow-lg pdf-container">
-          <!-- PDF pages get appended here -->
-        </div>
+        <iframe 
+        id="pdfContainer"
+        class="ultra-card p-3 shadow-lg pdf-container"
+        width="100%" height="100%"
+      ></iframe>
       </div>
     </div>
   </div>
 
   <!-- Main Script -->
-  <script>
-  (function() {
-    if (!window.pdfjsLib) {
-      console.error('PDF.js not loaded');
-      return;
-    }
+  <script defer>
+    window.onload = function() {
+      const raw = sessionStorage.getItem('annotatedPdfs');
+      if (!raw) {
+        console.error('No pdfUrl found in sessionStorage');
+        return;
+      }
+    
+      const hashmap = JSON.parse(raw);
+      for (let file in hashmap) {
+        if (file.toLowerCase().endsWith('.pdf')) {
+          // Decode the base64 string back into bytes
+          const byteChars = atob(hashmap[file]);
+          const byteNumbers = new Array(byteChars.length)
+            .fill(0)
+            .map((_, i) => byteChars.charCodeAt(i));
+          const byteArray = new Uint8Array(byteNumbers);
+    
+          // Create a blob URL
+          const blobUrl = URL.createObjectURL(
+            new Blob([byteArray], { type: 'application/pdf' })
+          );
+    
+          // Assign it directly
+          document.getElementById('pdfContainer').src = blobUrl;
+          break;
+        }
+      }
+    };
 
-    // 1) Retrieve PDF URL from sessionStorage
-    const url = sessionStorage.getItem('pdfUrl');
-    if (!url) {
-      console.error('No pdfUrl found in sessionStorage');
-      return;
-    }
+  // (function() {
+  //   if (!window.pdfjsLib) {
+  //     console.error('PDF.js not loaded');
+  //     return;
+  //   }
 
-    const container = document.getElementById('pdfContainer');
-    let pdfDoc = null;
-    const pageViewports = {};
+  //   // 1) Retrieve PDF URL from sessionStorage
+  //   // const url = sessionStorage.getItem('annotatedPdfs');
+  //   // if (!url) {
+  //   //   console.error('No pdfUrl found in sessionStorage');
+  //   //   return;
+  //   // }
 
-    // 2) Load and render all pages
-    pdfjsLib.getDocument(url).promise
-      .then(pdf => {
-        pdfDoc = pdf;
-        return (async () => {
-          for (let i = 1; i <= pdfDoc.numPages; i++) {
-            await renderPage(i);
-          }
-        })();
-      })
-      .then(() => {
-        // Wire up sidebar click events
-        document.getElementById('hitSidebar').addEventListener('click', e => {
-          if (e.target.matches('.hit-item')) {
-            const m = JSON.parse(e.target.dataset.match);
-            highlightBoxByCoords(m.page, m.x1, m.x2, m.y1, m.y2);
-            document.getElementById(`pageContainer${m.page}`)
-                    .scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-      })
-      .catch(console.error);
+  //   // const hashmap = JSON.parse(url);
+  //   //   for (var file in hashmap) {
+  //   //     console.log(hashmap[file]);
+  //   //       if (file.includes(".pdf")) {
+  //   //           const byteCharacters = atob(hashmap[file]);
+  //   //           const byteNumbers = new Array(byteCharacters.length).fill().map((_, i) => byteCharacters.charCodeAt(i));
+  //   //           const byteArray = new Uint8Array(byteNumbers);
+  //   //           const pdfurl = URL.createObjectURL(new Blob([byteArray], { type: "application/pdf" }))
+  //   //           const container = document.getElementById('pdfContainer').src = 'data:application/pdf;base64,'+ pdfurl;
+  //   //       }
 
-    // 3) Render a single page, fitting its width to the container
-    async function renderPage(pageNum) {
-      const page = await pdfDoc.getPage(pageNum);
-      const unscaled = page.getViewport({ scale: 1 });
-      const scale = container.clientWidth / unscaled.width;
-      const viewport = page.getViewport({ scale });
-      pageViewports[pageNum] = viewport;
+  //   //       break
+  //   //   }
 
-      // Create page wrapper
-      const pageDiv = document.createElement('div');
-      pageDiv.id = `pageContainer${pageNum}`;
-      pageDiv.className = 'pdf-page';
-      pageDiv.style.width = '100%';
-      pageDiv.style.position = 'relative';
+  //   // 2) Load and render all pages
+  //   pdfjsLib.getDocument(url).promise
+  //     .then(pdf => {
+  //       pdfDoc = pdf;
+  //       return (async () => {
+  //         for (let i = 1; i <= pdfDoc.numPages; i++) {
+  //           await renderPage(i);
+  //         }
+  //       })();
+  //     })
+  //     .then(() => {
+  //       // Wire up sidebar click events
+  //       document.getElementById('hitSidebar').addEventListener('click', e => {
+  //         if (e.target.matches('.hit-item')) {
+  //           const m = JSON.parse(e.target.dataset.match);
+  //           highlightBoxByCoords(m.page, m.x1, m.x2, m.y1, m.y2);
+  //           document.getElementById(`pageContainer${m.page}`)
+  //                   .scrollIntoView({ behavior: 'smooth' });
+  //         }
+  //       });
+  //     })
+  //     .catch(console.error);
 
-      // Canvas
-      const canvas = document.createElement('canvas');
-      canvas.width  = viewport.width;
-      canvas.height = viewport.height;
-      canvas.style.width = '100%';
-      canvas.style.height = 'auto';
-      pageDiv.appendChild(canvas);
+  //   // 3) Render a single page, fitting its width to the container
+  //   async function renderPage(pageNum) {
+  //     const page = await pdfDoc.getPage(pageNum);
+  //     const unscaled = page.getViewport({ scale: 1 });
+  //     const scale = container.clientWidth / unscaled.width;
+  //     const viewport = page.getViewport({ scale });
+  //     pageViewports[pageNum] = viewport;
 
-      // Highlight overlay
-      const hl = document.createElement('div');
-      hl.className = 'highlightLayer';
-      pageDiv.appendChild(hl);
+  //     // Create page wrapper
+  //     const pageDiv = document.createElement('div');
+  //     pageDiv.id = `pageContainer${pageNum}`;
+  //     pageDiv.className = 'pdf-page';
+  //     pageDiv.style.width = '100%';
+  //     pageDiv.style.position = 'relative';
 
-      container.appendChild(pageDiv);
+  //     // Canvas
+  //     const canvas = document.createElement('canvas');
+  //     canvas.width  = viewport.width;
+  //     canvas.height = viewport.height;
+  //     canvas.style.width = '100%';
+  //     canvas.style.height = 'auto';
+  //     pageDiv.appendChild(canvas);
 
-      // Render PDF page into canvas
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    }
+  //     // Highlight overlay
+  //     const hl = document.createElement('div');
+  //     hl.className = 'highlightLayer';
+  //     pageDiv.appendChild(hl);
 
-    // 4) Highlight a rectangle (pageNum, x1, x2, y1, y2)
-    function highlightBoxByCoords(pageNum, x1, x2, y1, y2) {
-      // Clear existing
-      document.querySelectorAll('.highlightLayer').forEach(l => l.innerHTML = '');
-      const viewport = pageViewports[pageNum];
-      if (!viewport) return;
+  //     container.appendChild(pageDiv);
 
-      const pageDiv = document.getElementById(`pageContainer${pageNum}`);
-      const canvas  = pageDiv.querySelector('canvas');
-      const layer   = pageDiv.querySelector('.highlightLayer');
+  //     // Render PDF page into canvas
+  //     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+  //   }
 
-      // Convert to viewport coordinates
-      const [vx1, vy1, vx2, vy2] =
-        viewport.convertToViewportRectangle([x1, y1, x2, y2]);
+  //   // 4) Highlight a rectangle (pageNum, x1, x2, y1, y2)
+  //   function highlightBoxByCoords(pageNum, x1, x2, y1, y2) {
+  //     // Clear existing
+  //     document.querySelectorAll('.highlightLayer').forEach(l => l.innerHTML = '');
+  //     const viewport = pageViewports[pageNum];
+  //     if (!viewport) return;
 
-      const scaleX = canvas.clientWidth  / canvas.width;
-      const scaleY = canvas.clientHeight / canvas.height;
+  //     const pageDiv = document.getElementById(`pageContainer${pageNum}`);
+  //     const canvas  = pageDiv.querySelector('canvas');
+  //     const layer   = pageDiv.querySelector('.highlightLayer');
 
-      const box = document.createElement('div');
-      box.className = 'highlight';
-      Object.assign(box.style, {
-        left:   `${Math.min(vx1, vx2) * scaleX}px`,
-        top:    `${Math.min(vy1, vy2) * scaleY}px`,
-        width:  `${Math.abs(vx2 - vx1) * scaleX}px`,
-        height: `${Math.abs(vy2 - vy1) * scaleY}px`
-      });
-      layer.appendChild(box);
-    }
+  //     // Convert to viewport coordinates
+  //     const [vx1, vy1, vx2, vy2] =
+  //       viewport.convertToViewportRectangle([x1, y1, x2, y2]);
 
-    window.highlightBoxByCoords = highlightBoxByCoords;
-  })();
-  </script>
+  //     const scaleX = canvas.clientWidth  / canvas.width;
+  //     const scaleY = canvas.clientHeight / canvas.height;
+
+  //     const box = document.createElement('div');
+  //     box.className = 'highlight';
+  //     Object.assign(box.style, {
+  //       left:   `${Math.min(vx1, vx2) * scaleX}px`,
+  //       top:    `${Math.min(vy1, vy2) * scaleY}px`,
+  //       width:  `${Math.abs(vx2 - vx1) * scaleX}px`,
+  //       height: `${Math.abs(vy2 - vy1) * scaleY}px`
+  //     });
+  //     layer.appendChild(box);
+  //   }
+
+  //   window.highlightBoxByCoords = highlightBoxByCoords;
+  // })();
+
+</script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

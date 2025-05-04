@@ -30,7 +30,7 @@ function handleFiles(files) {
     filesToAdd.forEach(file => {
         if (!uploadedFiles.some(f => f.name === file.name)) {
             uploadedFiles.push(file);
-            storePdfBlobInSession(file);
+            //storePdfBlobInSession(file);
         }
     });
 
@@ -75,20 +75,20 @@ function updateFilePreview() {
     });
 }
 
-function storePdfBlobInSession(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-        // reader.result is a "data:application/pdf;base64,..." string
-        sessionStorage.setItem(
-            `${file.name}`,
-            (reader.result)
-        );
-    };
-    reader.onerror = () => {
-        console.error('Failed to read file:', file.name, reader.error);
-    };
-    reader.readAsDataURL(file);
-}
+// function storePdfBlobInSession(file) {
+//     const reader = new FileReader();
+//     reader.onload = () => {
+//         // reader.result is a "data:application/pdf;base64,..." string
+//         sessionStorage.setItem(
+//             `${file.name}`,
+//             (reader.result)
+//         );
+//     };
+//     reader.onerror = () => {
+//         console.error('Failed to read file:', file.name, reader.error);
+//     };
+//     reader.readAsDataURL(file);
+// }
 
 
 // Drag & Drop handlers
@@ -148,8 +148,17 @@ async function SubmitPdf() {
 
         const prompt = promptInput.value.trim();
         const formData = new FormData();
+        
+        totalSize = 0;
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
         for (let i = 0; i < uploadedFiles.length; i++) {
+            totalSize += uploadedFiles[i].size;
+
+        if (totalSize > MAX_SIZE) {
+            alert ("You cannot upload more than 5MB")
+            return;
+        }
             formData.append('pdfs', uploadedFiles[i]);
         }
 
