@@ -30,6 +30,7 @@ function handleFiles(files) {
     filesToAdd.forEach(file => {
         if (!uploadedFiles.some(f => f.name === file.name)) {
             uploadedFiles.push(file);
+            storePdfBlobInSession(file);
         }
     });
 
@@ -73,6 +74,22 @@ function updateFilePreview() {
         });
     });
 }
+
+function storePdfBlobInSession(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        // reader.result is a "data:application/pdf;base64,..." string
+        sessionStorage.setItem(
+            `${file.name}`,
+            (reader.result)
+        );
+    };
+    reader.onerror = () => {
+        console.error('Failed to read file:', file.name, reader.error);
+    };
+    reader.readAsDataURL(file);
+}
+
 
 // Drag & Drop handlers
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {

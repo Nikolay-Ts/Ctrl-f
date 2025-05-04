@@ -68,3 +68,11 @@ body.loaded {
         font-size: 0.95rem;
     }
 }
+
+#hitSidebar .list-group-item {
+    cursor: pointer;
+}
+
+#hitSidebar .list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}

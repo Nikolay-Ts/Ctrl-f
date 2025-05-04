@@ -14,7 +14,17 @@
     .pdf-page { position: relative; margin: 1em 0; }
     .highlightLayer div { pointer-events: none; }
     .pdf-container { position: relative; overflow: auto; }
+    /* Optional sidebar styling */
+    #hitSidebar .list-group-item { cursor: pointer; }
+    #hitSidebar .list-group-item:hover { background-color: rgba(0,0,0,0.05); }
   </style>
+  <!-- PDF.js UMD build (only once!) -->
+  <script src="https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.min.js"></script>
+  <script>
+    // Configure the PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.worker.min.js';
+  </script>
 </head>
 <body class="d-flex flex-column" style="height:100vh; margin:0">
   <!-- Navbar -->
@@ -45,11 +55,11 @@
       <!-- Chat Column -->
       <div class="col-md-8 p-3" style="min-height:0">
         <div class="d-flex flex-row h-100">
-          <!-- Sidebar for PDF hits -->
+          <!-- Sidebar for PDF pages -->
           <div id="hitSidebar"
-               class="ultra-card p-3 me-3"
+               class="ultra-card p-3 me-3 list-group"
                style="width: 250px; overflow-y: auto;">
-            <!-- JS will inject a list of matches here -->
+            <!-- JS will inject the page list here -->
           </div>
           <!-- Chat Area -->
           <div class="d-flex flex-column flex-grow-1">
@@ -62,152 +72,120 @@
         </div>
       </div>
 
-      <!-- PDF Sidebar using PDF.js -->
+      <!-- PDF Viewer Column -->
       <div class="col-md-4 p-3">
         <div class="ultra-card p-3 shadow-lg pdf-container" id="pdfContainer"></div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <!-- 1) Bootstrap JS -->
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- 2) PDF.js UMD build -->
-  <script src="https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.min.js"></script>
+  <!-- PDF Rendering & Chat Logic -->
   <script>
-    // Configure the PDF.js worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.worker.min.js';
-  </script>
-
-  <!-- 3) Highlight + render logic -->
-  <script>
-  (function() {
+  (async function() {
+    // Ensure PDF.js is available
     if (!window.pdfjsLib) {
       console.error('PDF.js not loaded—check the <script> above.');
       return;
     }
     const pdfjs = window.pdfjsLib;
 
-    /** Highlights text matches on the rendered PDF pages. */
-    async function getMatches(containerId, matches) {
-      if (!Array.isArray(matches) || matches.length === 0) return;
-      const pdf = window._loadedPdf;
-      const container = document.getElementById(containerId);
+    //
+    // 1) Determine PDF URL & name from sessionStorage (fallback to test file)
+    //
+    const url     = sessionStorage.getItem('pdfUrl')  || '../test-data/RIS-lab.pdf';
+    const pdfName = sessionStorage.getItem('pdfName') || url.split('/').pop();
+    sessionStorage.setItem('pdfUrl', url);
+    sessionStorage.setItem('pdfName', pdfName);
 
-      for (let { page, text } of matches) {
-        const pageObj = await pdf.getPage(page);
-        const viewport = pageObj.getViewport({ scale: 1 });
-        const { items } = await pageObj.getTextContent();
-        const rects = [];
+    //
+    // 2) Load the PDF document
+    //
+    const pdf = await pdfjs.getDocument(url).promise;
+    window._loadedPdf = pdf;
 
-        for (let item of items) {
-          let idx = 0;
-          while ((idx = item.str.indexOf(text, idx)) !== -1) {
-            const [ , , , , e, f ] = pdfjs.Util.transform(viewport.transform, item.transform);
-            const h = item.height * viewport.scale;
-            const charW = (item.width * viewport.scale) / item.str.length;
-            rects.push({
-              x: e + charW * idx,
-              y: f - h,
-              w: charW * text.length,
-              h
-            });
-            idx += text.length;
-          }
-        }
+    //
+    // 3) Render all pages
+    //
+    const viewer = document.getElementById('pdfContainer');
+    viewer.innerHTML = '';  // clear old pages
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp   = page.getViewport({ scale: 1 });
 
-        const pageDiv = document.getElementById(`pageContainer${page}`);
-        let hlLayer = pageDiv.querySelector('.highlightLayer');
-        if (!hlLayer) {
-          hlLayer = document.createElement('div');
-          Object.assign(hlLayer.style, {
-            position: 'absolute',
-            top: 0, left: 0,
-            width: '100%', height: '100%',
-            pointerEvents: 'none'
-          });
-          hlLayer.className = 'highlightLayer';
-          pageDiv.appendChild(hlLayer);
-        }
+      const pageDiv = document.createElement('div');
+      pageDiv.id = `pageContainer${i}`;
+      pageDiv.className = 'pdf-page';
+      Object.assign(pageDiv.style, {
+        position: 'relative',
+        width:  `${vp.width}px`,
+        height: `${vp.height}px`
+      });
 
-        rects.forEach(r => {
-          const hl = document.createElement('div');
-          Object.assign(hl.style, {
-            position: 'absolute',
-            left:   `${r.x}px`,
-            top:    `${r.y}px`,
-            width:  `${r.w}px`,
-            height: `${r.h}px`,
-            background: 'rgba(255,255,0,0.4)'
-          });
-          hlLayer.appendChild(hl);
-        });
-      }
+      // Canvas for rendering
+      const canvas = document.createElement('canvas');
+      canvas.width  = vp.width;
+      canvas.height = vp.height;
+      pageDiv.appendChild(canvas);
+      await page.render({
+        canvasContext: canvas.getContext('2d'),
+        viewport:      vp
+      }).promise;
+
+      // Text layer (for future highlighting)
+      const textLayer = document.createElement('div');
+      textLayer.className = 'textLayer';
+      Object.assign(textLayer.style, {
+        position: 'absolute', top: 0, left: 0,
+        width: `${vp.width}px`,
+        height:`${vp.height}px`
+      });
+      page.getTextContent().then(tc =>
+        pdfjs.renderTextLayer({
+          textContent: tc,
+          container:   textLayer,
+          viewport:    vp,
+          textDivs:    []
+        })
+      );
+      pageDiv.appendChild(textLayer);
+
+      viewer.appendChild(pageDiv);
     }
 
-    // Render PDF pages into #pdfContainer and wire sidebar clicks
-    (async () => {
-      const url = '../test-data/RIS-lab.pdf';
-      const pdf = await pdfjs.getDocument(url).promise;
-      window._loadedPdf = pdf;
-      const container = document.getElementById('pdfContainer');
+    //
+    // 4) Populate the left sidebar with one entry per page
+    //
+    const sidebar = document.getElementById('hitSidebar');
+    sidebar.innerHTML = '';  // clear any previous items
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const item = document.createElement('div');
+      item.className = 'pdf-item list-group-item list-group-item-action';
+      item.textContent = `${pdfName} – Page ${i}`;
+      item.dataset.page = i;
+      sidebar.appendChild(item);
+    }
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1 });
+    //
+    // 5) Click handler: smooth-scroll to that page
+    //
+    sidebar.addEventListener('click', e => {
+      const tgt = e.target.closest('.pdf-item');
+      if (!tgt) return;
+      const pg = Number(tgt.dataset.page);
+      const pd = document.getElementById(`pageContainer${pg}`);
+      if (pd) pd.scrollIntoView({ behavior: 'smooth' });
+    });
 
-        const pageDiv = document.createElement('div');
-        pageDiv.id = `pageContainer${i}`;
-        pageDiv.className = 'pdf-page';
-        Object.assign(pageDiv.style, {
-          position: 'relative',
-          width:  `${viewport.width}px`,
-          height: `${viewport.height}px`
-        });
-
-        // Canvas render
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        pageDiv.appendChild(canvas);
-        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-
-        // Text layer
-        const textLayerDiv = document.createElement('div');
-        textLayerDiv.className = 'textLayer';
-        Object.assign(textLayerDiv.style, {
-          position: 'absolute',
-          top: 0, left: 0,
-          width:  `${viewport.width}px`,
-          height: `${viewport.height}px`
-        });
-        pageDiv.appendChild(textLayerDiv);
-        container.appendChild(pageDiv);
-
-        page.getTextContent().then(tc => {
-          pdfjs.renderTextLayer({
-            textContent: tc,
-            container: textLayerDiv,
-            viewport,
-            textDivs: []
-          });
-        });
-      }
-
-      document.getElementById('hitSidebar').addEventListener('click', e => {
-        if (e.target.matches('.hit-item')) {
-          getMatches('pdfContainer', [JSON.parse(e.target.dataset.match)]);
-        }
-      });
-    })();
-
-    // Chat logic (unchanged)
+    //
+    // 6) Existing chat logic
+    //
     (function () {
       const chatContainer = document.getElementById('chatContainer');
-      const inputEl = document.getElementById('chatInput');
-      const sendBtn = document.getElementById('sendBtn');
+      const inputEl       = document.getElementById('chatInput');
+      const sendBtn       = document.getElementById('sendBtn');
       let msgs = JSON.parse(sessionStorage.getItem('ctrlf_chat') || '[]');
 
       function renderChat() {
@@ -243,8 +221,63 @@
       });
     })();
 
-    // Expose the function if needed
+    //
+    // 7) (Optional) Expose highlight API
+    //
+    async function getMatches(containerId, matches) {
+      if (!Array.isArray(matches) || !matches.length) return;
+      for (let { page, text } of matches) {
+        const pageObj = await pdf.getPage(page);
+        const vp      = pageObj.getViewport({ scale: 1 });
+        const { items } = await pageObj.getTextContent();
+        const rects = [];
+
+        for (let item of items) {
+          let idx = 0;
+          while ((idx = item.str.indexOf(text, idx)) !== -1) {
+            const [ , , , , e, f ] =
+              pdfjs.Util.transform(vp.transform, item.transform);
+            const h     = item.height * vp.scale;
+            const charW = (item.width * vp.scale) / item.str.length;
+            rects.push({
+              x: e + charW * idx,
+              y: f - h,
+              w: charW * text.length,
+              h
+            });
+            idx += text.length;
+          }
+        }
+
+        const pageDiv = document.getElementById(`pageContainer${page}`);
+        let hlLayer = pageDiv.querySelector('.highlightLayer');
+        if (!hlLayer) {
+          hlLayer = document.createElement('div');
+          Object.assign(hlLayer.style, {
+            position: 'absolute', top: 0, left: 0,
+            width: '100%', height: '100%',
+            pointerEvents: 'none'
+          });
+          hlLayer.className = 'highlightLayer';
+          pageDiv.appendChild(hlLayer);
+        }
+
+        rects.forEach(r => {
+          const hl = document.createElement('div');
+          Object.assign(hl.style, {
+            position: 'absolute',
+            left:   `${r.x}px`,
+            top:    `${r.y}px`,
+            width:  `${r.w}px`,
+            height: `${r.h}px`,
+            background: 'rgba(255,255,0,0.4)'
+          });
+          hlLayer.appendChild(hl);
+        });
+      }
+    }
     window.getMatches = getMatches;
+
   })();
   </script>
 </body>
