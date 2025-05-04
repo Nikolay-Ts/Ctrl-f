@@ -13,7 +13,7 @@ def download_video(url, filename="lecture.mp4"):
         'format': 'bestvideo+bestaudio/best',
         'outtmpl': filename,
         'merge_output_format': 'mp4',
-        'quiet': False
+        'quiet': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -24,7 +24,7 @@ def download_video(url, filename="lecture.mp4"):
 
 def convert_to_mp3(video_file, audio_file="lecture.mp3"):
     clip = VideoFileClip(video_file)
-    clip.audio.write_audiofile(audio_file)
+    clip.audio.write_audiofile(audio_file, logger='None')
     clip.close()
     return audio_file
 
