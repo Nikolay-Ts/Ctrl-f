@@ -1,7 +1,32 @@
 [
     {
         "page": 2,
-        "text": "Problem P.1 STL Containers",
-        "filename": "practice_sheet.pdf"
+        "text": "While modeling development, a lot of information-rich features are neglected in In Feature selection Process. Mostly statistical methods are being used in a diverse domain, which tends to give undesirable results of the present predictive models. The feature selection is another huge problem with the existing models.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 4,
+        "text": "3) DP (Data Processing)\n4) FS (Feature Selection) is measured by Pearson correlation formula (Cr) where set of numerical attributes is taken 'X' ranging from\nX1, X2, X3......., Xn consider a set of attributes X, form a subset of two attributes each, X= {{X1, X1,}, {X1, X2}, {X1, X3} .... {Xi, Xj}...\n{Xn, Xn}}",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 5,
+        "text": "The attribute selection depends on the results of techniques of feature selection that find useful, the most similar and effective attributes to predict the churning customers.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 8,
+        "text": "3.1.2. Feature selection\nThis is an important step in achieving our model's goal. Unnecessary data is discovered in datasets while training the model, resulting in a reduction in model accuracy. As a result, feature selection on a dataset is used to solve these issues.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 9,
+        "text": "[3] Important Features or factors responsible for churning according to Decision Tree model: Finding the important factors that are responsible for churning makes it possible to find the service that is required to customer to prevent from attrition. This can be done using feature importance. Here the feature is ranked according to their importance. The most important feature at the top of list, while least important are at end of list.",
+        "filename": "Paper1.pdf"
+    },
+    {
+        "page": 9,
+        "text": "[4] Important Features or factors responsible for churning according to Random Forest Tree model: In this model from Fig. 5 the features importance ranked from 1st to last as,",
+        "filename": "Paper1.pdf"
     }
 ]
