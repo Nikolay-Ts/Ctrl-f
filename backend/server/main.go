@@ -72,7 +72,7 @@ func main() {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(out))
+		w.Write(out)
 		return
 	})
 
