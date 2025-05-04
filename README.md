@@ -71,3 +71,8 @@ All interactions between components use well-structured JSON “contracts” to 
    cd ctrl-f
 
 2. If you want to just use the project go to ctrl-f.world although past the 5th of May the server will be down because of token depletion so then it can be ran locally using a live server on the landing page.html file.
+
+3. If for whatever reason the server or frontend does not work the two main features work as such;
+
+- To run the pdf parser and finder using AI run python main.py in the directory Backend/server/lib/files/main.py and give it an input as such; python main.py [argument] "directory_pdf_path"
+- To run the video feature run main.py in the directory Backend/server/lib/video/main.py python main.py [argument] "youtube link"
