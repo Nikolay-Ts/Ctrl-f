@@ -1,5 +1,3 @@
-# utils.py
-
 import json
 import pdfplumber
 import fitz  
@@ -46,7 +44,6 @@ def getMatches(pdf_path: str, matches: list):
                         (May also contain 'filename', but that's not used for highlighting itself)
     """
 
-<<<<<<< HEAD
     # Generate output filename based on input pdf_path
     # This will create highlight_original_filename.pdf for each processed PDF
     output_filename = os.path.join(
@@ -54,9 +51,6 @@ def getMatches(pdf_path: str, matches: list):
             "highlight_" + os.path.basename(pdf_path))
 
     # Ensure the output file has a .pdf extension
-=======
-    output_filename = "highlight_" + os.path.basename(pdf_path)
->>>>>>> 2bfa799 (cleaning files and refactoring code for error handling)
     if not output_filename.lower().endswith(".pdf"):
         output_filename += ".pdf"
 
@@ -193,9 +187,4 @@ def getMatches(pdf_path: str, matches: list):
 
     finally:
         if doc:
-<<<<<<< HEAD
             doc.close()
-        # No need to close reader/writer explicitly, 'with open' handles file handles.
-=======
-            doc.close()
->>>>>>> 2bfa799 (cleaning files and refactoring code for error handling)
