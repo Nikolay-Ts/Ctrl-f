@@ -5,6 +5,6 @@
         "type": "integer"
       }
     },
-    "required": ["properties"]
+    "required": ["timestamp"]
 }
   
