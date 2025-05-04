@@ -69,3 +69,5 @@ All interactions between components use well-structured JSON “contracts” to 
    ```bash
    git clone https://github.com/your-org/ctrl-f.git
    cd ctrl-f
+
+2. If you want to just use the project go to ctrl-f.world 
