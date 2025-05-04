@@ -1,7 +1,7 @@
 import json
 import os
 from functions import search_documents
-from utils import getCoords
+from utils import getCoords, getMatches
 from google import genai
 import pdfplumber
 from pypdf import PdfReader, PdfWriter
@@ -44,69 +44,118 @@ response = client.models.generate_content(
     config=generation_config
 )
 
-# Check if there are any matches
-if response.function_calls and response.function_calls[0].args and response.function_calls[0].args['matches']:
-    text = response.function_calls[0].args['matches'][0]['text']
-    page_num = response.function_calls[0].args['matches'][0]['page']
-    bbox = response.function_calls[0].args['matches'][0]['bbox'] # [y_min, x_min, y_max, x_max] normalized 0-1000
-
-    print(f"Gemini Bounding Box (Normalized 0-1000): {bbox}")
-
-    # Create PDF reader and writer
-    reader = PdfReader(pdf_path)
-    writer = PdfWriter()
-
-    # Iterate through pages and add both the page and annotations
-    for page_index in range(len(reader.pages)):  # Iterate through *all* pages
-        page_obj = reader.pages[page_index] # Get the page object
-        writer.add_page(page_obj) # Add the original page *first*
-
-        # Apply the highlight only to the page where the match is found
-        # Ensure page_num is 1-based from Gemini, page_index is 0-based
-        if page_index + 1 == page_num:
-            # Get page dimensions for denormalization
-            page_width = float(page_obj.mediabox.width)
-            page_height = float(page_obj.mediabox.height)
-
-            # Denormalize and convert Gemini bbox (top-left origin, Y down)
-            # to pypdf rect (bottom-left origin, Y up)
-            # pypdf rect format: (x_min, y_min, x_max, y_max) in points
-
-            gemini_y_min, gemini_x_min, gemini_y_max, gemini_x_max = bbox
-
-            pdf_x_min = gemini_x_min / 1000.0 * page_width
-            pdf_x_max = gemini_x_max / 1000.0 * page_width
-
-            # Invert Y and scale: Gemini y_min is top, maps to pdf y_max
-            # Gemini y_max is bottom, maps to pdf y_min
-            pdf_y_max = (1000 - gemini_y_min) / 1000.0 * page_height 
-            pdf_y_min = (1000 - gemini_y_max) / 1000.0 * page_height
-
-            # Create the pypdf rectangle tuple
-            rect = (pdf_x_min, pdf_y_min, pdf_x_max, pdf_y_max)
-            print(f"Calculated PyPDF Rect (points): {rect}")
-
-            quad = ArrayObject([
-                FloatObject(pdf_x_min), FloatObject(pdf_y_min),  # lower-left
-                FloatObject(pdf_x_max), FloatObject(pdf_y_min),  # lower-right
-                FloatObject(pdf_x_min), FloatObject(pdf_y_max),  # upper-left
-                FloatObject(pdf_x_max), FloatObject(pdf_y_max)   # upper-right
-            ])
-
-            # Create the annotation using the calculated rect and quad points IN POINTS
-            annotation = Highlight(rect=rect, quad_points=quad)
-            # Add annotation to the correct page *in the writer object*
-            writer.add_annotation(page_num - 1, annotation)
-
-    # 5. Write out a new PDF
-    with open("highlighted_output.pdf", "wb") as out_f:
-        writer.write(out_f)
-
-    with open("coordinates.json", "w") as outfile:
-        json.dump([{"page": page_num,
-                    "gemini_bbox_normalized": bbox,
-                    "pdf_rect_points": rect,
-                    "pdf_quad_points": [p for p in quad]}], # Convert FloatObjects for JSON
-                   outfile, indent=4)
-        
 print(response)
+
+all_matches = [] # This list will store all found match dictionaries
+
+# Prioritize processing function_calls if available
+if response.function_calls and response.function_calls[0].args:
+     print("Processing function call response.")
+     if 'matches' in response.function_calls[0].args and isinstance(response.function_calls[0].args['matches'], list):
+          all_matches.extend(response.function_calls[0].args['matches'])
+          print(f"Found {len(all_matches)} matches from function call.")
+     else:
+          print("Function call response does not contain a list of 'matches'.")
+
+
+if not all_matches and response.candidates and response.candidates[0].content.parts:
+    print("Processing text response for potential JSON.")
+    for part in response.candidates[0].content.parts:
+        if part.text:
+            text_content = part.text
+            if '```json' in text_content and '```' in text_content:
+                try:
+                    json_string = text_content.split('```json', 1)[1].split('```', 1)[0].strip()
+                    parsed_response = json.loads(json_string)
+                     # Assuming the parsed_response is a list of match dictionaries
+                    if isinstance(parsed_response, list):
+                        # Validate that each item in the list looks like a match
+                        valid_matches = [
+                            item for item in parsed_response
+                            if isinstance(item, dict) and 'page_number' in item and 'bbox' in item
+                        ]
+                        if valid_matches:
+                            # Convert 'page_number' to 'page' to match expected structure
+                            converted_matches = [
+                                {'page': item['page_number'], 'bbox': item['bbox'], 'text': item.get('text', '')}
+                                for item in valid_matches
+                            ]
+                            all_matches.extend(converted_matches)
+                            print(f"Found {len(all_matches)} matches from text response.")
+                        else:
+                             print("Parsed JSON list does not contain valid match dictionaries.")
+                    else:
+                         print("Parsed JSON is not a list.")
+
+                except json.JSONDecodeError:
+                    print("Could not parse JSON from response text.")
+                except Exception as e: # Catch other potential errors during parsing/processing
+                    print(f"An error occurred during JSON text processing: {e}")
+
+if not all_matches and response.candidates and response.candidates[0].content.parts:
+    print("Processing text response for potential JSON.")
+    for part in response.candidates[0].content.parts:
+        if part.text:
+            text_content = part.text
+            if '```json' in text_content and '```' in text_content:
+                try:
+                    json_string = text_content.split('```json', 1)[1].split('```', 1)[0].strip()
+                    parsed_response = json.loads(json_string)
+                     # Assuming the parsed_response is a list of match dictionaries
+                    if isinstance(parsed_response, list):
+                        # Validate and convert items in the list
+                        converted_matches = []
+                        for item in parsed_response:
+                            # Check if item is a dictionary and has a 'bbox' key
+                            if isinstance(item, dict) and 'bbox' in item:
+                                page_value = None
+                                # Explicitly check for 'page' key first
+                                if 'page' in item:
+                                    page_value = item['page']
+                                # If 'page' is not there, check for 'page_number'
+                                elif 'page_number' in item:
+                                    page_value = item['page_number']
+                                else:
+                                    # If neither key is found, skip this item and print a message
+                                    print(f"Skipping item missing 'page' or 'page_number' key: {item}")
+                                    continue # Move to the next item in the loop
+
+                                # If a valid page_value was found, append the converted match
+                                if page_value is not None:
+                                    converted_matches.append({
+                                       'page': page_value, # Use the extracted page value
+                                       'bbox': item['bbox'],
+                                       'text': item.get('text', '') # Add text if available
+                                    })
+                                else:
+                                     # This else block should ideally not be reached if the above logic is correct,
+                                     # but serves as a safeguard for unexpected scenarios.
+                                     print(f"Internal Error: Logic issue in determining page value for item: {item}")
+
+
+                            else:
+                                 # This else is for items that are not dictionaries or are missing the 'bbox' key
+                                 print(f"Skipping invalid item (not a dict or missing bbox): {item}")
+
+                        if converted_matches:
+                            all_matches.extend(converted_matches)
+                            print(f"Found {len(all_matches)} matches from text response.")
+                        else:
+                             print("Parsed JSON list does not contain valid match dictionaries after filtering.")
+
+                    else:
+                         print("Parsed JSON is not a list.")
+
+                except json.JSONDecodeError:
+                    print("Could not parse JSON from response text.")
+                except Exception as e: # Catch other potential errors during parsing/processing
+                    print(f"An error occurred during JSON text processing: {e}")
+
+
+# --- Call the highlighting function if matches were found ---
+
+if all_matches:
+    # The highlight_matches_in_pdf function handles the rest
+    getMatches(pdf_path, all_matches)
+else:
+    print("No matches found in the document to highlight.")
