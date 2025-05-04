@@ -5,7 +5,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  overflow: auto;            /* <-- changed from hidden */
+  overflow: auto;   
 }
 
 body {
@@ -84,7 +84,7 @@ body {
   overflow-y: auto;      /* scrollbar when needed */
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.55rem;
   padding-bottom: 0.5rem;
 }
 

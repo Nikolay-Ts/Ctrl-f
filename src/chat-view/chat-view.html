@@ -37,14 +37,28 @@
   <!-- Main -->
   <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
     <div class="row g-0 flex-grow-1">
-      <!-- Chat Column -->
-      <div class="col-md-8 p-3 d-flex flex-column" style="min-height:0">
-        <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
-        <div class="chat-input-bar">
-          <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
-          <button id="sendBtn" aria-label="Send">&#10148;</button>
-        </div>
-      </div>
+      <!-- Chat Column with left-hand “hits” sidebar -->
+      <div class="col-md-8 p-3" style="min-height:0">
+              <div class="d-flex flex-row h-100">
+      
+                <!-- Sidebar for PDF hits (fixed width, scrollable) -->
+                <div id="hitSidebar"
+                    class="ultra-card p-3 me-3"
+                    style="width: 250px; overflow-y: auto;">
+                  <!-- JS can later inject a list of matches here -->
+                </div>
+      
+                <!-- Original chat area -->
+                <div class="d-flex flex-column flex-grow-1">
+                  <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
+                  <div class="chat-input-bar">
+                    <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
+                    <button id="sendBtn" aria-label="Send">&#10148;</button>
+                  </div>
+                </div>
+      
+              </div>
+            </div>
 
       <!-- PDF Sidebar (now embed) -->
       <div class="col-md-4 p-3">
