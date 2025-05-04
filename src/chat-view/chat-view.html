@@ -4,29 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ctrl-F Chat Viewer</title>
+
   <!-- Bootstrap CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+
+  <!-- PDF.js core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    // Tell PDF.js where to find its worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+  </script>
+
   <link rel="stylesheet" href="chat-view.css" />
   <style>
+    body { margin: 0; height: 100vh; }
     .pdf-page { position: relative; margin: 1em 0; }
-    .highlightLayer div { pointer-events: none; }
-    .pdf-container { position: relative; overflow: auto; }
-    /* Optional sidebar styling */
-    #hitSidebar .list-group-item { cursor: pointer; }
-    #hitSidebar .list-group-item:hover { background-color: rgba(0,0,0,0.05); }
+    .highlightLayer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10; }
+    .highlight { position:absolute; background:rgba(255,255,0,0.4); }
+    .pdf-container { position:relative; overflow-y:auto; height:100%; }
+    .chat-input-bar { display:flex; }
+    .chat-input-bar textarea { flex:1; resize:none; }
+    .chat-input-bar button { margin-left:0.5em; }
   </style>
-  <!-- PDF.js UMD build (only once!) -->
-  <script src="https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.min.js"></script>
-  <script>
-    // Configure the PDF.js worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://unpkg.com/pdfjs-dist@2.18.191/build/pdf.worker.min.js';
-  </script>
 </head>
-<body class="d-flex flex-column" style="height:100vh; margin:0">
+<body class="d-flex flex-column">
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg nav-blur border-bottom border-secondary shadow-sm py-2 sticky-top">
     <div class="container-fluid d-flex justify-content-between align-items-center">
@@ -39,10 +44,10 @@
       <div class="d-flex justify-content-end align-items-center" style="width: 33%;">
         <ul class="navbar-nav flex-row">
           <li class="nav-item">
-            <a class="nav-link nav-lg-link text-light mx-3" href="../about-page/about-page.html">About</a>
+            <a class="nav-link text-light mx-3" href="../about-page/about-page.html">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-lg-link text-light mx-3" href="https://github.com/Nikolay-Ts/Ctrl-f" target="_blank">Source Code</a>
+            <a class="nav-link text-light mx-3" href="https://github.com/Nikolay-Ts/Ctrl-f" target="_blank">Source Code</a>
           </li>
         </ul>
       </div>
@@ -53,232 +58,145 @@
   <div class="container-fluid flex-grow-1 d-flex flex-column p-0">
     <div class="row g-0 flex-grow-1">
       <!-- Chat Column -->
-      <div class="col-md-8 p-3" style="min-height:0">
+      <div class="col-md-8 p-3 d-flex flex-column" style="min-height:0">
         <div class="d-flex flex-row h-100">
-          <!-- Sidebar for PDF pages -->
+          <!-- Sidebar for PDF hits -->
           <div id="hitSidebar"
-               class="ultra-card p-3 me-3 list-group"
+               class="ultra-card p-3 me-3"
                style="width: 250px; overflow-y: auto;">
-            <!-- JS will inject the page list here -->
+            <!-- JS will inject match items here -->
           </div>
           <!-- Chat Area -->
           <div class="d-flex flex-column flex-grow-1">
-            <div class="ultra-card p-3 flex-grow-1 chat-container" id="chatContainer"></div>
-            <div class="chat-input-bar">
+            <div id="chatContainer" class="ultra-card p-3 flex-grow-1 overflow-auto">
+              <!-- chat messages go here -->
+            </div>
+            <div class="chat-input-bar p-2">
               <textarea id="chatInput" rows="1" placeholder="Type your message…"></textarea>
-              <button id="sendBtn" aria-label="Send">&#10148;</button>
+              <button id="sendBtn" class="btn btn-primary" aria-label="Send">&#10148;</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PDF Viewer Column -->
+      <!-- PDF Column -->
       <div class="col-md-4 p-3">
-        <div class="ultra-card p-3 shadow-lg pdf-container" id="pdfContainer"></div>
+        <div id="pdfContainer" class="ultra-card p-3 shadow-lg pdf-container">
+          <!-- PDF pages get appended here -->
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- PDF Rendering & Chat Logic -->
+  <!-- Main Script -->
   <script>
-  (async function() {
-    // Ensure PDF.js is available
+  (function() {
     if (!window.pdfjsLib) {
-      console.error('PDF.js not loaded—check the <script> above.');
+      console.error('PDF.js not loaded');
       return;
     }
-    const pdfjs = window.pdfjsLib;
 
-    //
-    // 1) Determine PDF URL & name from sessionStorage (fallback to test file)
-    //
-    const url     = sessionStorage.getItem('pdfUrl')  || '../test-data/RIS-lab.pdf';
-    const pdfName = sessionStorage.getItem('pdfName') || url.split('/').pop();
-    sessionStorage.setItem('pdfUrl', url);
-    sessionStorage.setItem('pdfName', pdfName);
-
-    //
-    // 2) Load the PDF document
-    //
-    const pdf = await pdfjs.getDocument(url).promise;
-    window._loadedPdf = pdf;
-
-    //
-    // 3) Render all pages
-    //
-    const viewer = document.getElementById('pdfContainer');
-    viewer.innerHTML = '';  // clear old pages
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const vp   = page.getViewport({ scale: 1 });
-
-      const pageDiv = document.createElement('div');
-      pageDiv.id = `pageContainer${i}`;
-      pageDiv.className = 'pdf-page';
-      Object.assign(pageDiv.style, {
-        position: 'relative',
-        width:  `${vp.width}px`,
-        height: `${vp.height}px`
-      });
-
-      // Canvas for rendering
-      const canvas = document.createElement('canvas');
-      canvas.width  = vp.width;
-      canvas.height = vp.height;
-      pageDiv.appendChild(canvas);
-      await page.render({
-        canvasContext: canvas.getContext('2d'),
-        viewport:      vp
-      }).promise;
-
-      // Text layer (for future highlighting)
-      const textLayer = document.createElement('div');
-      textLayer.className = 'textLayer';
-      Object.assign(textLayer.style, {
-        position: 'absolute', top: 0, left: 0,
-        width: `${vp.width}px`,
-        height:`${vp.height}px`
-      });
-      page.getTextContent().then(tc =>
-        pdfjs.renderTextLayer({
-          textContent: tc,
-          container:   textLayer,
-          viewport:    vp,
-          textDivs:    []
-        })
-      );
-      pageDiv.appendChild(textLayer);
-
-      viewer.appendChild(pageDiv);
+    // 1) Retrieve PDF URL from sessionStorage
+    const url = sessionStorage.getItem('pdfUrl');
+    if (!url) {
+      console.error('No pdfUrl found in sessionStorage');
+      return;
     }
 
-    //
-    // 4) Populate the left sidebar with one entry per page
-    //
-    const sidebar = document.getElementById('hitSidebar');
-    sidebar.innerHTML = '';  // clear any previous items
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const item = document.createElement('div');
-      item.className = 'pdf-item list-group-item list-group-item-action';
-      item.textContent = `${pdfName} – Page ${i}`;
-      item.dataset.page = i;
-      sidebar.appendChild(item);
-    }
+    const container = document.getElementById('pdfContainer');
+    let pdfDoc = null;
+    const pageViewports = {};
 
-    //
-    // 5) Click handler: smooth-scroll to that page
-    //
-    sidebar.addEventListener('click', e => {
-      const tgt = e.target.closest('.pdf-item');
-      if (!tgt) return;
-      const pg = Number(tgt.dataset.page);
-      const pd = document.getElementById(`pageContainer${pg}`);
-      if (pd) pd.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    //
-    // 6) Existing chat logic
-    //
-    (function () {
-      const chatContainer = document.getElementById('chatContainer');
-      const inputEl       = document.getElementById('chatInput');
-      const sendBtn       = document.getElementById('sendBtn');
-      let msgs = JSON.parse(sessionStorage.getItem('ctrlf_chat') || '[]');
-
-      function renderChat() {
-        chatContainer.innerHTML = '';
-        msgs.forEach(m => {
-          const b = document.createElement('div');
-          b.className = 'chat-bubble user';
-          b.textContent = m;
-          chatContainer.appendChild(b);
-        });
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-
-      function addMessage(text) {
-        msgs.push(text);
-        sessionStorage.setItem('ctrlf_chat', JSON.stringify(msgs));
-        renderChat();
-      }
-
-      renderChat();
-      sendBtn.addEventListener('click', () => {
-        const txt = inputEl.value.trim();
-        if (!txt) return;
-        addMessage(txt);
-        inputEl.value = '';
-        inputEl.focus();
-      });
-      inputEl.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendBtn.click();
-        }
-      });
-    })();
-
-    //
-    // 7) (Optional) Expose highlight API
-    //
-    async function getMatches(containerId, matches) {
-      if (!Array.isArray(matches) || !matches.length) return;
-      for (let { page, text } of matches) {
-        const pageObj = await pdf.getPage(page);
-        const vp      = pageObj.getViewport({ scale: 1 });
-        const { items } = await pageObj.getTextContent();
-        const rects = [];
-
-        for (let item of items) {
-          let idx = 0;
-          while ((idx = item.str.indexOf(text, idx)) !== -1) {
-            const [ , , , , e, f ] =
-              pdfjs.Util.transform(vp.transform, item.transform);
-            const h     = item.height * vp.scale;
-            const charW = (item.width * vp.scale) / item.str.length;
-            rects.push({
-              x: e + charW * idx,
-              y: f - h,
-              w: charW * text.length,
-              h
-            });
-            idx += text.length;
+    // 2) Load and render all pages
+    pdfjsLib.getDocument(url).promise
+      .then(pdf => {
+        pdfDoc = pdf;
+        return (async () => {
+          for (let i = 1; i <= pdfDoc.numPages; i++) {
+            await renderPage(i);
           }
-        }
-
-        const pageDiv = document.getElementById(`pageContainer${page}`);
-        let hlLayer = pageDiv.querySelector('.highlightLayer');
-        if (!hlLayer) {
-          hlLayer = document.createElement('div');
-          Object.assign(hlLayer.style, {
-            position: 'absolute', top: 0, left: 0,
-            width: '100%', height: '100%',
-            pointerEvents: 'none'
-          });
-          hlLayer.className = 'highlightLayer';
-          pageDiv.appendChild(hlLayer);
-        }
-
-        rects.forEach(r => {
-          const hl = document.createElement('div');
-          Object.assign(hl.style, {
-            position: 'absolute',
-            left:   `${r.x}px`,
-            top:    `${r.y}px`,
-            width:  `${r.w}px`,
-            height: `${r.h}px`,
-            background: 'rgba(255,255,0,0.4)'
-          });
-          hlLayer.appendChild(hl);
+        })();
+      })
+      .then(() => {
+        // Wire up sidebar click events
+        document.getElementById('hitSidebar').addEventListener('click', e => {
+          if (e.target.matches('.hit-item')) {
+            const m = JSON.parse(e.target.dataset.match);
+            highlightBoxByCoords(m.page, m.x1, m.x2, m.y1, m.y2);
+            document.getElementById(`pageContainer${m.page}`)
+                    .scrollIntoView({ behavior: 'smooth' });
+          }
         });
-      }
-    }
-    window.getMatches = getMatches;
+      })
+      .catch(console.error);
 
+    // 3) Render a single page, fitting its width to the container
+    async function renderPage(pageNum) {
+      const page = await pdfDoc.getPage(pageNum);
+      const unscaled = page.getViewport({ scale: 1 });
+      const scale = container.clientWidth / unscaled.width;
+      const viewport = page.getViewport({ scale });
+      pageViewports[pageNum] = viewport;
+
+      // Create page wrapper
+      const pageDiv = document.createElement('div');
+      pageDiv.id = `pageContainer${pageNum}`;
+      pageDiv.className = 'pdf-page';
+      pageDiv.style.width = '100%';
+      pageDiv.style.position = 'relative';
+
+      // Canvas
+      const canvas = document.createElement('canvas');
+      canvas.width  = viewport.width;
+      canvas.height = viewport.height;
+      canvas.style.width = '100%';
+      canvas.style.height = 'auto';
+      pageDiv.appendChild(canvas);
+
+      // Highlight overlay
+      const hl = document.createElement('div');
+      hl.className = 'highlightLayer';
+      pageDiv.appendChild(hl);
+
+      container.appendChild(pageDiv);
+
+      // Render PDF page into canvas
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    }
+
+    // 4) Highlight a rectangle (pageNum, x1, x2, y1, y2)
+    function highlightBoxByCoords(pageNum, x1, x2, y1, y2) {
+      // Clear existing
+      document.querySelectorAll('.highlightLayer').forEach(l => l.innerHTML = '');
+      const viewport = pageViewports[pageNum];
+      if (!viewport) return;
+
+      const pageDiv = document.getElementById(`pageContainer${pageNum}`);
+      const canvas  = pageDiv.querySelector('canvas');
+      const layer   = pageDiv.querySelector('.highlightLayer');
+
+      // Convert to viewport coordinates
+      const [vx1, vy1, vx2, vy2] =
+        viewport.convertToViewportRectangle([x1, y1, x2, y2]);
+
+      const scaleX = canvas.clientWidth  / canvas.width;
+      const scaleY = canvas.clientHeight / canvas.height;
+
+      const box = document.createElement('div');
+      box.className = 'highlight';
+      Object.assign(box.style, {
+        left:   `${Math.min(vx1, vx2) * scaleX}px`,
+        top:    `${Math.min(vy1, vy2) * scaleY}px`,
+        width:  `${Math.abs(vx2 - vx1) * scaleX}px`,
+        height: `${Math.abs(vy2 - vy1) * scaleY}px`
+      });
+      layer.appendChild(box);
+    }
+
+    window.highlightBoxByCoords = highlightBoxByCoords;
   })();
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
