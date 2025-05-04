@@ -49,10 +49,10 @@ func main() {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Println(err.Error())
 			}
-
-			w.WriteHeader(http.StatusOK)
-			return
 		}
+
+		w.WriteHeader(http.StatusOK)
+		return
 	})
 
 

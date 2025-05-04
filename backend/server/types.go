@@ -36,7 +36,7 @@ type UniqueDir struct {
 // UniqueDir.New creates a uniquely named directory.
 func (dir *UniqueDir) New() error {
 	err := os.Mkdir("data", 0770)
-	if err != nil && err != os.ErrExist {
+	if err != nil && !os.IsExist(err) {
 		return err
 	}
 
