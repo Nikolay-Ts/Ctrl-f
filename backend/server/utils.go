@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strconv"
 )
 
 // SaveFile saves a file into DIRECTORY.
