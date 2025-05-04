@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
     value = sys.argv[1]
     directory = sys.argv[2]
-    output_json_filename = "all_matches_coords.json" # Define the single output JSON file name
+    output_json_filename = os.path.join(directory, "all_matches_coords.json")
 
     all_collected_matches = [] # This list will collect ALL matches from ALL PDFs processed
 

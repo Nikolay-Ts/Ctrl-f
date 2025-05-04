@@ -56,6 +56,18 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
 
 	filesMap := make(map[string]string)
 	for _, entry := range entries {
+		if entry.Name() == "all_matches_coords.json" {
+			data, err := os.ReadFile(filepath.Join(directory, entry.Name()))
+			if err != nil {
+				continue
+			}
+
+			encoded := base64.StdEncoding.EncodeToString(data)
+			log.Println(encoded)
+			filesMap[entry.Name()] = encoded
+			continue
+		}
+
         if entry.IsDir() || !strings.HasPrefix(entry.Name(), "highlight_") {
             continue
         }
@@ -66,11 +78,9 @@ func ExecFiles(prompt, directory string) ([]byte, error) {
         }
 
         encoded := base64.StdEncoding.EncodeToString(data)
-		log.Println(encoded)
         filesMap[entry.Name()] = encoded
     }
 
-	log.Println(filesMap)
 
 	return json.Marshal(filesMap)
 }
