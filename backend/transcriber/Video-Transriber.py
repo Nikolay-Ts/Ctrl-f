@@ -3,6 +3,7 @@ import google.generativeai as genai
 from google.genai import types
 from moviepy import VideoFileClip
 import os
+import sys
 import whisper
 import warnings
 from functions import get_timestamp
