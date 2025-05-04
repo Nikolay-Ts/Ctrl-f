@@ -13,7 +13,7 @@ def download_video(url, filename="lecture.mp4"):
         'format': 'bestvideo+bestaudio/best',
         'outtmpl': filename,
         'merge_output_format': 'mp4',
-        'quiet': True
+        'quiet': True,
         'no_warnings': True, 
         'verbose': False
     }
