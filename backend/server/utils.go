@@ -1,11 +1,15 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"io"
 	"mime/multipart"
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
+	"strings"
 )
 
 // SaveFile saves a file into DIRECTORY.
@@ -34,11 +38,37 @@ func SaveFile(f *multipart.FileHeader, directory string) error {
 // ExecFiles runs the python program to extract information on the PROMPT
 // based on information in the files in DIRECTORY.
 func ExecFiles(prompt, directory string) ([]byte, error) {
-	return exec.Command(
+	res, err := exec.Command(
 		"./lib/venv/bin/python3", 
 		"./lib/files/main.py", 
 		prompt, 
 		directory).Output()
+
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := os.ReadDir(directory)
+    if err != nil {
+		return nil, err
+    }
+
+	filesMap := make(map[string]string)
+	for _, entry := range entries {
+        if entry.IsDir() || !strings.HasPrefix(entry.Name(), "annotated_") {
+            continue
+        }
+
+        data, err := os.ReadFile(filepath.Join(directory, entry.Name()))
+        if err != nil {
+            continue
+        }
+
+        encoded := base64.StdEncoding.EncodeToString(data)
+        filesMap[entry.Name()] = encoded
+    }
+
+	return json.Marshal(filesMap)
 }
 
 // ExecVideo runs the python program to retrieve the timestamp where NEEDLE is mentioned
