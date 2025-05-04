@@ -1,6 +1,6 @@
 import yt_dlp
 import google.generativeai as genai
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 import os
 import whisper
 import warnings
