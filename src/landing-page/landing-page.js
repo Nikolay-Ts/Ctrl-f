@@ -143,7 +143,7 @@ async function SubmitPdf() {
                 return;
             }
 
-            const data = await response.text(); //TODO: Change this be back to a JSON
+            const data = await response.json();
             console.log("Response JSON:", data);
 
             if (!data) {
@@ -152,6 +152,7 @@ async function SubmitPdf() {
             }
 
             sessionStorage.setItem("annotatedPdfs", JSON.stringify(data));
+            window.location.href = "/src/chat-view/chat-view.html";
         } catch (error) {
             console.error(error);
             window.alert("Error with the server");
