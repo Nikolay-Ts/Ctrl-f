@@ -50,7 +50,7 @@ def run(topic, audio):
 
 
 
-    tool = types.Tool(function_declarations=[get_document])
+    tool = types.Tool(function_declarations=[get_timestamp])
 
     generation_config = types.GenerateContentConfig(
         temperature=0,
@@ -70,15 +70,17 @@ def run(topic, audio):
         config=generation_config
     )
 
-
-    return response
+    if response.function_calls and response.function_calls[0].args:
+        return response.function_calls[0].args["timestamp"]
+    else:
+        return 0
 
 
 if __name__ == "__main__":
     video_path = download_video(sys.argv[2])
     audio_path = convert_to_mp3(video_path)
     response = run(sys.argv[1], audio_path)
-    print(response.text)
+    print(response)
     os.unlink(video_path)
     os.unlink(audio_path)
 
